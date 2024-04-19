@@ -1,8 +1,13 @@
 {% extends "main.html.jinja" %}
 
 {% block content %}
-
-{% include "form.html.jinja" %}
-{% include "table.html.jinja" %}
-
+    <div style="position: absolute; left: 0;right: 0;top: 0;bottom: 0;">
+        <div style="float: left;width: 30%">
+            {% include "form.html.jinja" %}
+            {% include "table.html.jinja" %}
+        </div>
+        <div style="float: left;width: 70%;height: 100%">
+            {% include "iframe.html.jinja" %}
+        </div>
+    </div>
 {% endblock %}

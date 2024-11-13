@@ -55,8 +55,7 @@ def load_path_to_collection(embedding_path, *db_collection_list):
                     points=[
                         PointStruct(
                             id=idx,
-                            vector=vector,
-                            payload={"color": "red", "rand_number": idx % 10}
+                            vector=vector
                         )
                         for idx, vector in zip(buffer["ids"], buffer["embeddings"])
                     ]

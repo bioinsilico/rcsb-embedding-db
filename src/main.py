@@ -41,11 +41,11 @@ async def search_chain(request: Request, rcsb_id: str, granularity: str = "chain
             name="null-instance.html.jinja", context=context
         )
 
-    rcsb_embedding = list(pd.read_csv(f"{embedding_path}/{rcsb_id}.csv").iloc[:, 0].values) \
+    rcsb_embedding = list(pd.read_csv(f"{embedding_path}/{rcsb_id}.csv", header=None).iloc[:, 0].values) \
         if os.path.isfile(f"{embedding_path}/{rcsb_id}.csv") \
-        else list(pd.read_csv(f"{assembly_path}/{rcsb_id}.csv").iloc[:, 0].values) \
+        else list(pd.read_csv(f"{assembly_path}/{rcsb_id}.csv", header=None).iloc[:, 0].values) \
         if os.path.isfile(f"{assembly_path}/{rcsb_id}.csv") \
-        else list(pd.read_csv(f"{csm_path}/{rcsb_id}.csv").iloc[:, 0].values)
+        else list(pd.read_csv(f"{csm_path}/{rcsb_id}.csv", header=None).iloc[:, 0].values)
 
     collection_name = "assembly_collection" if granularity == "assembly" else ("csm_collection" if include_csm else "chain_collection")
 

@@ -57,11 +57,11 @@ async def search_chain(request: Request, rcsb_id: str, granularity: str = "chain
 
     results = [
         {
-            "index":  hit['id'],
-            "instance_id": hit['payload']['rcsb_id'],
-            "img_url": img_url(hit['payload']['rcsb_id']),
-            "alignment_url": alignment_url(rcsb_id, hit['payload']['rcsb_id']),
-            "score": hit['score']
+            "index":  hit.id,
+            "instance_id": hit.payload['rcsb_id'],
+            "img_url": img_url(hit.payload['rcsb_id']),
+            "alignment_url": alignment_url(rcsb_id, hit.payload['rcsb_id']),
+            "score": hit.score
         } for hit in hits
     ]
     if n_results < _ef_search:

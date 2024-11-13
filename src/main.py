@@ -5,11 +5,12 @@ import pandas as pd
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
+from qdrant_client import QdrantClient
 
 from src.db import init_db_collection
 from src.utils import img_url, alignment_url, arches_score
 
-from db import client
+client = QdrantClient(host="localhost", port=6333)
 
 embedding_path = os.environ.get("RCSB_EMBEDDING_PATH")
 csm_path = os.environ.get("CSM_EMBEDDING_PATH")

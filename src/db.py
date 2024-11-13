@@ -42,7 +42,7 @@ def load_path_to_collection(embedding_path, *db_collection_list):
         "ids": [],
         "embeddings": []
     }
-    buffer_size = 5000
+    buffer_size = 2000
     for idx, r in enumerate(files):
         instance_id = file_name(r)
         v = list(pd.read_csv(f"{embedding_path}/{r}", header=None).iloc[:, 0].values)

@@ -8,30 +8,24 @@ client = QdrantClient(host="localhost", port=6333)
 
 
 def init_db_collection(chain_path, csm_path, assembly_path):
-    client.create_collection(
-        collection_name="chain_collection",
-        vectors_config=VectorParams(
-            size=1280,
-            distance=Distance.COSINE
-        ),
-    )
-    client.create_collection(
-        collection_name="csm_collection",
-        vectors_config=VectorParams(
-            size=1280,
-            distance=Distance.COSINE
-        ),
-    )
-    client.create_collection(
-        collection_name="assembly_collection",
-        vectors_config=VectorParams(
-            size=1280,
-            distance=Distance.COSINE
-        ),
-    )
+    create_collection("chain_collection")
+    create_collection("csm_collection")
+    create_collection("assembly_collection")
     load_path_to_collection(chain_path, "csm_collection", "chain_collection")
     load_path_to_collection(csm_path, "csm_collection")
     load_path_to_collection(assembly_path, "assembly_collection")
+
+
+def create_collection(collection_name):
+    if client.collection_exists(collection_name):
+        client.delete_collection(collection_name)
+    client.create_collection(
+        collection_name=collection_name,
+        vectors_config=VectorParams(
+            size=1280,
+            distance=Distance.COSINE
+        ),
+    )
 
 
 def display_progress(current, total):

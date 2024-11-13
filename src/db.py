@@ -55,9 +55,10 @@ def load_path_to_collection(embedding_path, *db_collection_list):
                     points=[
                         PointStruct(
                             id=idx,
-                            vector=vector
+                            vector=vector,
+                            payload={"rcsb_id": rcsb_id}
                         )
-                        for idx, vector in zip(buffer["ids"], buffer["embeddings"])
+                        for idx, (rcsb_id, vector) in enumerate(zip(buffer["ids"], buffer["embeddings"]))
                     ]
                 )
             buffer["embeddings"] = []

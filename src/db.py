@@ -23,9 +23,9 @@ def create_collection(collection_name):
         collection_name=collection_name,
         vectors_config=VectorParams(
             size=1280,
-            distance=Distance.COSINE
-        ),
-        on_disk=True
+            distance=Distance.COSINE,
+            on_disk=True
+        )
     )
 
 

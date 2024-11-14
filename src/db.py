@@ -25,6 +25,7 @@ def create_collection(collection_name):
             size=1280,
             distance=Distance.COSINE
         ),
+        on_disk=True
     )
 
 

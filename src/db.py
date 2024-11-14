@@ -1,6 +1,6 @@
 import os
 from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, VectorParams, PointStruct
+from qdrant_client.models import Distance, VectorParams, PointStruct, HnswConfigDiff
 import pandas as pd
 
 
@@ -24,6 +24,9 @@ def create_collection(collection_name):
         vectors_config=VectorParams(
             size=1280,
             distance=Distance.COSINE,
+            on_disk=True
+        ),
+        hnsw_config=HnswConfigDiff(
             on_disk=True
         )
     )

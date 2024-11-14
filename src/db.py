@@ -28,7 +28,8 @@ def create_collection(collection_name):
         ),
         hnsw_config=HnswConfigDiff(
             on_disk=True
-        )
+        ),
+        on_disk_payload=True
     )
 
 

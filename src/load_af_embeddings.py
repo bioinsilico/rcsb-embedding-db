@@ -1,6 +1,7 @@
 import os
 
 import pandas as pd
+from tqdm import tqdm
 
 from embedding_af_loader import EmbeddingLoader
 import concurrent.futures
@@ -22,13 +23,14 @@ def insert_file(file):
 
 def main():
 
-    embedding_loader.index_collection()
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
         futures = [executor.submit(insert_file, f'{af_embedding_folder}/{df}') for df in os.listdir(af_embedding_folder)]
-        for future in concurrent.futures.as_completed(futures):
-            print(future.result())
+        with tqdm(total=len(futures), desc="Loading embeddings", unit="file") as pbar:
+            for _ in concurrent.futures.as_completed(futures):
+                pbar.update(1)
 
     embedding_loader.flush()
+    embedding_loader.index_collection()
     embedding_loader.load_collection()
 
 

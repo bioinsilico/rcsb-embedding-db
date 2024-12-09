@@ -1,6 +1,5 @@
 
 import numpy as np
-from tqdm import tqdm
 
 from pymilvus import (
     connections, FieldSchema, CollectionSchema, DataType, Collection, list_collections, utility
@@ -68,22 +67,19 @@ class EmbeddingLoader:
         batch_size = self.BATCH_SIZE
         total_rows = len(df)
         num_batches = (total_rows + batch_size - 1) // batch_size  # Calculate the number of batches needed
+        for batch_num in range(num_batches):
+            start_idx = batch_num * batch_size
+            end_idx = min(start_idx + batch_size, total_rows)
+            batch_df = df.iloc[start_idx:end_idx]
 
-        with tqdm(total=num_batches, desc="Loading embeddings", unit="batch") as pbar:
-            for batch_num in range(num_batches):
-                start_idx = batch_num * batch_size
-                end_idx = min(start_idx + batch_size, total_rows)
-                batch_df = df.iloc[start_idx:end_idx]
+            ids = batch_df[self.ID_FIELD].tolist()
+            embeddings = [(embedding/np.linalg.norm(embedding)).tolist() for embedding in batch_df[self.EMBEDDING_FIELD]]
 
-                ids = batch_df[self.ID_FIELD].tolist()
-                embeddings = [(embedding/np.linalg.norm(embedding)).tolist() for embedding in batch_df[self.EMBEDDING_FIELD]]
-
-                entities = [
-                    ids,         # List of identifiers
-                    embeddings   # List of embeddings
-                ]
-                self.collection.insert(entities)
-                pbar.update(1)
+            entities = [
+                ids,         # List of identifiers
+                embeddings   # List of embeddings
+            ]
+            self.collection.insert(entities)
 
     def flush(self):
         self.collection.flush()

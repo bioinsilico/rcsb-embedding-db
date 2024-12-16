@@ -23,7 +23,7 @@ def insert_file(file):
 
 def main():
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
         futures = [executor.submit(insert_file, f'{af_embedding_folder}/{df}') for df in os.listdir(af_embedding_folder)]
         with tqdm(total=len(futures), desc="Loading embeddings", unit="file") as pbar:
             for _ in concurrent.futures.as_completed(futures):

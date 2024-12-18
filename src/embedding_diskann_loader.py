@@ -19,5 +19,5 @@ class EmbeddingLoader:
         with open(f"{self.diskann_tmp_folder}/{prefix}.tsv", "w") as f:
             for start in range(0, len(df), self.BATCH_SIZE):
                 chunk = df.iloc[start:start + self.BATCH_SIZE]
-                chunk["embedding"] = chunk["embedding"].apply(lambda x: "\t".join(map(str, x)))
-                chunk.to_csv(f, sep="\t", index=False, header=False)
+                chunk[self.EMBEDDING_FIELD] = chunk[self.EMBEDDING_FIELD].apply(lambda x: "\t".join(map(str, x)))
+                chunk[[self.EMBEDDING_FIELD]].to_csv(f, sep="\t", index=False, header=False)

@@ -1,5 +1,4 @@
 
-import numpy as np
 
 class EmbeddingLoader:
 
@@ -8,18 +7,13 @@ class EmbeddingLoader:
     BATCH_SIZE = 2000
 
     def __init__(
-            self
+            self,
+            diskann_tmp_folder
     ):
         self.collection = None
+        self.diskann_tmp_folder = diskann_tmp_folder
 
-    def read_df(self, df):
+    def save_to_tsv(self, df, prefix):
         if not {self.ID_FIELD, self.EMBEDDING_FIELD}.issubset(df.columns):
             raise ValueError(f"DataFrame must contain '{self.ID_FIELD}' and '{self.EMBEDDING_FIELD}' columns.")
-
-        batch_size = self.BATCH_SIZE
-        total_rows = len(df)
-        for row in df.itertuples():
-            print(row)
-            exit(0)
-
-
+        df[[self.EMBEDDING_FIELD]].to_csv(f"{self.diskann_tmp_folder}/{prefix}.tsv", sep='\t', index=False)

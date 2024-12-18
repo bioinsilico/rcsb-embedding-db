@@ -4,7 +4,7 @@ class EmbeddingLoader:
 
     ID_FIELD = 'id'
     EMBEDDING_FIELD = 'embedding'
-    BATCH_SIZE = 2000
+    BATCH_SIZE = 20000
 
     def __init__(
             self,

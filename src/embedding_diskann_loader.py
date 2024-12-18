@@ -16,5 +16,8 @@ class EmbeddingLoader:
     def save_to_tsv(self, df, prefix):
         if not {self.ID_FIELD, self.EMBEDDING_FIELD}.issubset(df.columns):
             raise ValueError(f"DataFrame must contain '{self.ID_FIELD}' and '{self.EMBEDDING_FIELD}' columns.")
-        df[self.EMBEDDING_FIELD] = df[self.EMBEDDING_FIELD].apply(lambda x: "\t".join(map(str, x)))
-        df[self.EMBEDDING_FIELD].to_csv(f"{self.diskann_tmp_folder}/{prefix}.tsv", sep='\t', index=False, header=False)
+        with open(f"{self.diskann_tmp_folder}/{prefix}.tsv", "w") as f:
+            for start in range(0, len(df), self.BATCH_SIZE):
+                chunk = df.iloc[start:start + self.BATCH_SIZE]
+                chunk["embedding"] = chunk["embedding"].apply(lambda x: ",".join(map(str, x)))
+                chunk.to_csv(f, sep="\t", index=False, header=False)

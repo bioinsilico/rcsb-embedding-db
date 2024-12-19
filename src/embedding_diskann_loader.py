@@ -50,8 +50,8 @@ class EmbeddingLoader:
         for start in range(0, len(df), self.BATCH_SIZE):
             chunk = df.iloc[start:start + self.BATCH_SIZE]
             chunk = pd.DataFrame(chunk[self.EMBEDDING_FIELD].tolist())
-            _max = chunk.max()
-            _min = chunk.min()
+            _max = chunk.max().max()
+            _min = chunk.min().min()
             if _max > df_max:
                 df_max = _max
             if _min < df_min:

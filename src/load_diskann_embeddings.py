@@ -21,7 +21,7 @@ def main():
     pbar.close()
     print(f"Saving {total_len} embeddings")
 
-    embedding_loader = EmbeddingLoader(diskann_tmp_folder, dim, total_len)
+    embedding_loader = EmbeddingLoader(diskann_tmp_folder, total_len, dim)
     with tqdm(total=len(df_files), desc="Loading embeddings", unit="file") as pbar:
         for df in df_files:
             embedding_loader.add_to_bin(pd.read_pickle(f'{af_embedding_folder}/{df}'))

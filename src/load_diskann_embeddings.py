@@ -13,15 +13,30 @@ dim = 1280
 
 def main():
     total_len = 0
+    df_max = 0
+    df_min = 1000000
     df_files = os.listdir(af_embedding_folder)[0:10]
     with tqdm(total=len(df_files), desc="Loading embeddings", unit="file") as pbar:
-        for df in df_files:
-            total_len += len(pd.read_pickle(f'{af_embedding_folder}/{df}'))
+        for _df in df_files:
+            df = pd.read_pickle(f'{af_embedding_folder}/{_df}')
+            _max = df.max().max()
+            _min = df.min().min()
+            if _max > df_max:
+                df_max = _max
+            if _min < df_min:
+                df_min = _min
+            total_len += len(df)
             pbar.update(1)
     pbar.close()
-    print(f"Saving {total_len} embeddings")
+    print(f"Saving {total_len} embeddings with min/max ({df_min},{df_max})")
 
-    embedding_loader = EmbeddingLoader(diskann_tmp_folder, total_len, dim)
+    embedding_loader = EmbeddingLoader(
+        diskann_tmp_folder,
+        total_len,
+        dim,
+        df_max,
+        df_min
+    )
     with tqdm(total=len(df_files), desc="Loading embeddings", unit="file") as pbar:
         for df in df_files:
             embedding_loader.add_to_bin(pd.read_pickle(f'{af_embedding_folder}/{df}'))

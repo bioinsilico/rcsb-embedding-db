@@ -20,7 +20,6 @@ class EmbeddingLoader:
 
     def open_bin(self, n_rows, dim):
         with open(self.diskann_bin_file, 'wb') as f:
-            f.write(n_rows.to_bytes(4))
             f.write(struct.pack('<i', n_rows))
             f.write(struct.pack('<i', dim))
 

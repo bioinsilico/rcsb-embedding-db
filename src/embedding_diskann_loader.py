@@ -11,14 +11,10 @@ class EmbeddingLoader:
             self,
             diskann_tmp_folder,
             total_len,
-            dim,
-            df_max,
-            df_min
+            dim
     ):
         self.collection = None
         self.diskann_bin_file = f'{diskann_tmp_folder}/embeddings.bin'
-        self.df_max = df_max
-        self.df_min = df_min
         self.open_bin(total_len, dim)
 
     def open_bin(self, n_rows, dim):
@@ -29,9 +25,6 @@ class EmbeddingLoader:
     def add_to_bin(self, df):
         if not {self.ID_FIELD, self.EMBEDDING_FIELD}.issubset(df.columns):
             raise ValueError(f"DataFrame must contain '{self.ID_FIELD}' and '{self.EMBEDDING_FIELD}' columns.")
-        min_val, max_val = self.df_min, self.df_max
         with open(self.diskann_bin_file, 'ab') as f:
             for index, row in df.iterrows():
-                f.write(np.round(
-                    (np.array(row[self.EMBEDDING_FIELD].tolist())-min_val)*255 / (max_val-min_val)
-                ).astype(np.uint8).tobytes())
+                f.write(np.array(row[self.EMBEDDING_FIELD].tolist(), dtype=np.float32).tobytes())

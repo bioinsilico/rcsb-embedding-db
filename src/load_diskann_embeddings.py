@@ -13,45 +13,21 @@ EMBEDDING_FIELD = 'embedding'
 BATCH_SIZE = 20000
 
 
-def min_max(df):
-    df_max = 0
-    df_min = 1000000
-    for start in range(0, len(df), BATCH_SIZE):
-        chunk = df.iloc[start:start + BATCH_SIZE]
-        chunk = pd.DataFrame(chunk[EMBEDDING_FIELD].tolist())
-        _max = chunk.max().max()
-        _min = chunk.min().min()
-        if _max > df_max:
-            df_max = _max
-        if _min < df_min:
-            df_min = _min
-    return df_min, df_max
-
-
 def main():
     total_len = 0
-    df_max = 0
-    df_min = 1000000
     df_files = os.listdir(af_embedding_folder)[0:10]
     with tqdm(total=len(df_files), desc="Loading embeddings", unit="file") as pbar:
         for _df in df_files:
             df = pd.read_pickle(f'{af_embedding_folder}/{_df}')
-            _min, _max = min_max(df)
-            if _max > df_max:
-                df_max = _max
-            if _min < df_min:
-                df_min = _min
             total_len += len(df)
             pbar.update(1)
     pbar.close()
-    print(f"Saving {total_len} embeddings with min/max ({df_min},{df_max})")
+    print(f"Saving {total_len} embeddings")
 
     embedding_loader = EmbeddingLoader(
         diskann_tmp_folder,
         total_len,
-        dim,
-        df_max,
-        df_min
+        dim
     )
     with tqdm(total=len(df_files), desc="Loading embeddings", unit="file") as pbar:
         for df in df_files:

@@ -10,7 +10,7 @@ import concurrent.futures
 af_embedding_folder = "/mnt/vdc1/computed-models/embeddings"
 diskann_tmp_folder = "/mnt/raid0/DiskANN/tmp"
 dim = 1280
-embedding_loader = EmbeddingLoader(diskann_tmp_folder)
+embedding_loader = EmbeddingLoader(diskann_tmp_folder, dim)
 
 
 def insert_file(file, prefix):

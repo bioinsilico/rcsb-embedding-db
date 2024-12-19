@@ -33,5 +33,5 @@ class EmbeddingLoader:
         with open(self.diskann_bin_file, 'ab') as f:
             for index, row in df.iterrows():
                 f.write(np.round(
-                    (np.array(row[self.EMBEDDING_FIELD].tolist())-min_val)*511 / (max_val-min_val)
+                    (np.array(row[self.EMBEDDING_FIELD].tolist())-min_val)*255 / (max_val-min_val)
                 ).astype(np.uint8).tobytes())

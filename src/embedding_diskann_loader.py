@@ -20,7 +20,7 @@ class EmbeddingLoader:
             for start in range(0, len(df), self.BATCH_SIZE):
                 chunk = df.iloc[start:start + self.BATCH_SIZE]
                 pd.DataFrame(
-                    [round(s,2) for s in chunk[self.EMBEDDING_FIELD].tolist()],
+                    chunk[self.EMBEDDING_FIELD].tolist(),
                     index=chunk.index
                 ).to_csv(f, sep="\t", index=False, header=False)
 

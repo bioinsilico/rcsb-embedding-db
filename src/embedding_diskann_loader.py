@@ -22,5 +22,5 @@ class EmbeddingLoader:
                 pd.DataFrame(
                     chunk[self.EMBEDDING_FIELD].tolist(),
                     index=chunk.index
-                ).to_csv(f, sep="\t", index=False, header=False)
+                ).round(2).to_csv(f, sep="\t", index=False, header=False)
 

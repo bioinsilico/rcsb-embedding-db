@@ -9,6 +9,23 @@ from embedding_diskann_loader import EmbeddingLoader
 af_embedding_folder = "/mnt/vdc1/computed-models/embeddings"
 diskann_tmp_folder = "/mnt/raid0/DiskANN/tmp"
 dim = 1280
+EMBEDDING_FIELD = 'embedding'
+BATCH_SIZE = 20000
+
+
+def min_max(df):
+    df_max = 0
+    df_min = 1000000
+    for start in range(0, len(df), BATCH_SIZE):
+        chunk = df.iloc[start:start + BATCH_SIZE]
+        chunk = pd.DataFrame(chunk[EMBEDDING_FIELD].tolist())
+        _max = chunk.max().max()
+        _min = chunk.min().min()
+        if _max > df_max:
+            df_max = _max
+        if _min < df_min:
+            df_min = _min
+    return df_min, df_max
 
 
 def main():
@@ -19,8 +36,7 @@ def main():
     with tqdm(total=len(df_files), desc="Loading embeddings", unit="file") as pbar:
         for _df in df_files:
             df = pd.read_pickle(f'{af_embedding_folder}/{_df}')
-            _max = df.max().max()
-            _min = df.min().min()
+            _min, _max = min_max(df)
             if _max > df_max:
                 df_max = _max
             if _min < df_min:

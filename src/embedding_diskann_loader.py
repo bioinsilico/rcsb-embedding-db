@@ -31,8 +31,8 @@ class EmbeddingLoader:
 
     def open_bin(self, n_rows, dim):
         with open(self.diskann_bin_file, 'wb') as f:
-            f.write(n_rows.to_bytes())
-            f.write(dim.to_bytes())
+            f.write(n_rows.to_bytes(4))
+            f.write(dim.to_bytes(4))
 
     def add_to_bin(self, df):
         if not {self.ID_FIELD, self.EMBEDDING_FIELD}.issubset(df.columns):

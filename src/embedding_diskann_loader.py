@@ -22,26 +22,27 @@ class EmbeddingLoader:
     def __init__(
             self,
             diskann_tmp_folder,
+            total_len,
             dim
     ):
         self.collection = None
-        self.diskann_tmp_folder = diskann_tmp_folder
-        self.dim = dim
+        self.diskann_bin_file = f'{diskann_tmp_folder}/embeddings.bin'
+        self.open_bin(total_len, dim)
 
-    def save_to_tsv(self, df, prefix):
+    def open_bin(self, n_rows, dim):
+        with open(self.diskann_bin_file, 'wb') as f:
+            f.write(np.array(n_rows, dtype='int32').tobytes())
+            f.write(np.array(dim, dtype='int32').tobytes())
+
+    def add_to_bin(self, df):
         if not {self.ID_FIELD, self.EMBEDDING_FIELD}.issubset(df.columns):
             raise ValueError(f"DataFrame must contain '{self.ID_FIELD}' and '{self.EMBEDDING_FIELD}' columns.")
         min_val, max_val = self.min_max(df)
-        np_array = np.memmap(
-            f"{self.diskann_tmp_folder}/{prefix}.np",
-            dtype=np.uint8,
-            shape=(len(df), self.dim)
-        )
-        for index, row in df.iterrows():
-            np_array[index, :] = np.round(
-                (np.array(row[self.EMBEDDING_FIELD].tolist())-min_val)*255 / (max_val-min_val)
-            ).astype(np.uint8)
-        write_fvecs(f"{self.diskann_tmp_folder}/{prefix}.fvecs", np_array)
+        with open(self.diskann_bin_file, 'ab') as f:
+            for index, row in df.iterrows():
+                f.write(np.round(
+                    (np.array(row[self.EMBEDDING_FIELD].tolist())-min_val)*255 / (max_val-min_val)
+                ).astype(np.uint8).tobytes())
 
     def min_max(self, df):
         df_max = 0

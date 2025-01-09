@@ -46,7 +46,7 @@ class EmbeddingLoader:
 
         embedding_field = FieldSchema(
             name=self.EMBEDDING_FIELD,
-            dtype=DataType.FLOAT_VECTOR,
+            dtype=DataType.FLOAT16_VECTOR,
             dim=dim
         )
 

@@ -2,6 +2,7 @@ from embedding_loader import EmbeddingLoader
 
 
 dim = 1280
+tag = "34466681"
 
 
 def main():
@@ -10,8 +11,8 @@ def main():
         "instance_embeddings",
         dim
     )
-    embedding_loader.insert_folder("/mnt/vdb1/embedding-34466681", False)
-    embedding_loader.insert_folder("/mnt/vdb1/csm-34466681", True)
+    embedding_loader.insert_folder(f"/mnt/vdb1/embedding-{tag}", False)
+    embedding_loader.insert_folder(f"/mnt/vdb1/csm-{tag}", True)
     embedding_loader.flush()
     embedding_loader.index_collection()
 
@@ -19,7 +20,7 @@ def main():
         "assembly_embeddings",
         dim
     )
-    embedding_loader.insert_folder("/mnt/vdb1/assembly-34466681", False)
+    embedding_loader.insert_folder(f"/mnt/vdb1/assembly-{tag}", False)
     embedding_loader.flush()
     embedding_loader.index_collection()
 

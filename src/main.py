@@ -15,7 +15,7 @@ templates = Jinja2Templates(directory="src/templates")
 
 instance_collection = "instance_embeddings"
 assembly_collection = "assembly_embeddings"
-embedding_path = "/mnt/vdb1/embedding-34466681"
+embedding_path = "/mnt/vdb1/embedding-33855646"
 
 
 @app.get("/embedding_search/{rcsb_id}", response_class=HTMLResponse)

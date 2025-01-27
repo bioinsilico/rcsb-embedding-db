@@ -1,8 +1,8 @@
 from embedding_loader import EmbeddingLoader
 
 
-dim = 1280
-tag = "34466681"
+dim = 1536
+tag = "33855646"
 
 
 def main():

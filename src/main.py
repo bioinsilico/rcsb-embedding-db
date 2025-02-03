@@ -27,7 +27,7 @@ async def search_chain(
         include_csm: bool = False
 ):
 
-    collection_name = assembly_collection if granularity == "assembly" else instance_collection
+    collection_name = assembly_collection if "-" in rcsb_id else instance_collection
     embedding_provider = EmbeddingProvider(collection_name)
     rcsb_embedding = embedding_provider.get_by_id(rcsb_id)
     if not rcsb_embedding:
@@ -37,6 +37,8 @@ async def search_chain(
             name="null-instance.html.jinja", context=context
         )
 
+    collection_name = assembly_collection if granularity == "assembly" else instance_collection
+    embedding_provider = EmbeddingProvider(collection_name)
     search_result = embedding_provider.get_by_embedding(
         rcsb_embedding,
         include_csm,
@@ -48,7 +50,7 @@ async def search_chain(
             "instance_id": r.id,
             "alignment_url": alignment_url(rcsb_id, r.id),
             "img_url": img_url(r.id),
-            "score": r.distance
+            "score": round(r.distance, 2)
         } for idx, r in enumerate(search_result[0])
     ]
 

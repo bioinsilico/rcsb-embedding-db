@@ -20,9 +20,10 @@ if __name__ == '__main__':
 
     embedding_provider = EmbeddingProvider(collection_name)
 
+    embedding_files = list(os.listdir(embedding_path))
     random_queries = []
-    for i in range(n_queries):
-        random_id = ".".join(random.choice(os.listdir(embedding_path)).split(".")[0:2])
+    for f in random.sample(embedding_files, n_queries):
+        random_id = ".".join(f.split(".")[0:2])
         rcsb_embedding = embedding_provider.get_by_id(random_id)
         random_queries.append(rcsb_embedding)
 

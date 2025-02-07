@@ -38,6 +38,18 @@ class EmbeddingProvider:
             }
         )
 
+    def get_by_multi_embedding(self, query_embedding, is_csm=True, n_results=100):
+        return self.collection.search(
+            data=query_embedding,
+            expr=f'{self.CSM_FLAG} == False' if not is_csm else None,
+            anns_field=self.EMBEDDING_FIELD,
+            limit=n_results,
+            param={
+                "metric_type": "COSINE",
+                "params": {}
+            }
+        )
+
     def get_by_id(self, query_id):
         result = self.collection.query(
             expr=f'{self.ID_FIELD} == "{query_id}"',

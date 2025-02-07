@@ -28,12 +28,11 @@ if __name__ == '__main__':
         random_queries.append(rcsb_embedding)
 
     start_time = time.time()
-    for rcsb_embedding in random_queries:
-        search_result = embedding_provider.get_by_embedding(
-            rcsb_embedding,
-            True,
-            n_results
-        )
+    search_result = embedding_provider.get_by_multi_embedding(
+        random_queries,
+        True,
+        n_results
+    )
     end_time = time.time()
 
     execution_time = end_time - start_time

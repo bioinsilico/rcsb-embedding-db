@@ -3,7 +3,7 @@ import os
 import pandas as pd
 from tqdm import tqdm
 
-from embedding_diskann_loader import EmbeddingLoader
+from utils.embedding_diskann_loader import EmbeddingLoader
 
 
 af_embedding_folder = "/mnt/vdc1/computed-models/embeddings"

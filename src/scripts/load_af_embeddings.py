@@ -3,7 +3,7 @@ import os
 import pandas as pd
 from tqdm import tqdm
 
-from embedding_af_loader import EmbeddingLoader
+from utils.embedding_af_loader import EmbeddingLoader
 import concurrent.futures
 
 

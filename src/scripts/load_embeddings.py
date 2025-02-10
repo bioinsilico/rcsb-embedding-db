@@ -1,4 +1,4 @@
-from embedding_loader import EmbeddingLoader
+from utils.embedding_loader import EmbeddingLoader
 
 
 dim = 1536

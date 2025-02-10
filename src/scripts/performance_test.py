@@ -6,7 +6,7 @@ import time
 import numpy as np
 from scipy import stats
 
-from embedding_provider import EmbeddingProvider
+from utils.embedding_provider import EmbeddingProvider
 
 
 def confidence_interval(data, confidence=0.95):

@@ -4,7 +4,7 @@ import struct
 import time
 import numpy as np
 
-from embedding_provider import EmbeddingProvider
+from utils.embedding_provider import EmbeddingProvider
 
 
 def bytes_to_float16_list(byte_sequence):

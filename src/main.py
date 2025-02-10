@@ -6,7 +6,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from utils.embedding_provider import EmbeddingProvider
-from app_utils import img_url, alignment_url
+from utils.template_tools import img_url, alignment_url
 
 
 app = FastAPI()

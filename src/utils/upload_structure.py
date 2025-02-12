@@ -1,3 +1,4 @@
+import os
 
 import torch
 from biotite.structure import chain_iter, get_residues, filter_amino_acids
@@ -11,7 +12,7 @@ from utils.load_aggregator import load_aggregator
 
 MODEL: ESM3InferenceClient = ESM3.from_pretrained(ESM3_OPEN_SMALL)
 AGGREGATOR = load_aggregator(
-    "/Users/joan/data/structure-embedding/pst_t30_so/rcsb/model/id=33855646-epoch=34-pr_auc=0.21.ckpt"
+    os.environ['MODEL_PATH']
 )
 AGGREGATOR.eval()
 

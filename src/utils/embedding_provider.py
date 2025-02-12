@@ -1,9 +1,13 @@
+import os
 from enum import Enum
+import random
 
 import numpy as np
 from pymilvus import (
     connections, Collection
 )
+
+from utils.upload_structure import get_embedding_method
 
 
 class EmbeddingProvider:
@@ -21,7 +25,8 @@ class EmbeddingProvider:
         self.collection = {}
         self.connect()
         self.collections()
-
+        self.embedding_model = None
+        self.embedding_path = None
 
     def connect(self):
         connections.connect(
@@ -36,6 +41,12 @@ class EmbeddingProvider:
         self.collection[MilvusCollection.assembly_collection] = Collection(
             name=MilvusCollection.assembly_collection
         )
+
+    def load_model(self, model_path):
+        self.embedding_model = get_embedding_method(model_path)
+
+    def set_embedding_path(self, embedding_path):
+        self.embedding_path = embedding_path
 
     def get_by_embedding(
             self,
@@ -92,13 +103,18 @@ class EmbeddingProvider:
             return None
         return result[0][self.EMBEDDING_FIELD]
 
-    def get_random(self):
+    def get_random_id(self):
+        if self.embedding_path:
+            return ".".join(random.choice(os.listdir(self.embedding_path)).split(".")[0:2])
         return self.get_by_embedding(
             collection=MilvusCollection.instance_collection,
             query_embedding=np.random.rand(self.EMBEDDING_DIM),
             is_csm=False,
             n_results=1
-        )
+        )[0][0].id
+
+    def compute_embeddings(self, structure):
+        return self.embedding_model(structure)
 
 
 class MilvusCollection(str, Enum):

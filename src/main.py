@@ -1,6 +1,7 @@
 import argparse
-import os
-import random
+import asyncio
+
+import uvicorn
 
 from fastapi import FastAPI, Request, UploadFile, File, Form
 from fastapi.responses import HTMLResponse
@@ -10,13 +11,12 @@ from io import StringIO
 
 from utils.embedding_provider import EmbeddingProvider, MilvusCollection
 from utils.template_tools import img_url, alignment_url
-from utils.upload_structure import get_structure_from_stream, compute_embeddings
+from utils.upload_structure import get_structure_from_stream
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--embedding_path', type=str)
 
 app = FastAPI()
-templates = Jinja2Templates(directory="src/templates")
+templates = Jinja2Templates(directory="./templates")
 
 EMBEDDING_PROVIDER = EmbeddingProvider()
 
@@ -39,7 +39,7 @@ async def search_chain(
         query_id=rcsb_id
     )
     if not rcsb_embedding:
-        random_id = get_random()
+        random_id = EMBEDDING_PROVIDER.get_random_id()
         context = {"rcsb_id": rcsb_id, "search_id": random_id, "request": request}
         return templates.TemplateResponse(
             name="null-instance.html.jinja", context=context
@@ -91,7 +91,7 @@ async def upload_file(
     file_content = await file.read()
     file_stream = StringIO(file_content.decode('utf-8'))
     structure = get_structure_from_stream(file_stream, format, chain_id)
-    structure_embedding = compute_embeddings(structure)
+    structure_embedding = EMBEDDING_PROVIDER.compute_embeddings(structure)
 
     collection_name = MilvusCollection.assembly_collection if search_type == "assembly" else MilvusCollection.instance_collection
     search_result = EMBEDDING_PROVIDER.get_by_embedding(
@@ -129,7 +129,7 @@ async def upload_file(
 @app.get("/", response_class=HTMLResponse)
 @app.get("/embedding_search", response_class=HTMLResponse)
 async def form(request: Request):
-    random_id = get_random()
+    random_id = EMBEDDING_PROVIDER.get_random_id()
     context = {
         "search_id": random_id,
         "request": request,
@@ -149,6 +149,15 @@ async def upload_form(request: Request):
     return templates.TemplateResponse("index.upload.html.jinja", {"request": request})
 
 
+async def init(args):
+    EMBEDDING_PROVIDER.load_model(args.model_path)
+    if args.embedding_path:
+        EMBEDDING_PROVIDER.set_embedding_path(args.embedding_path)
+    config = uvicorn.Config(app, host=args.host, port=args.port, reload=args.reload)
+    server = uvicorn.Server(config)
+    await server.serve()
+
+
 def ready_results(results, threshold_set):
     if len(results) == 0:
         return False
@@ -162,6 +171,17 @@ def build_id(search_by, rcsb_id, comp_i):
 
 
 def get_random():
-    if os.environ['EMBEDDING_PATH']:
-        return ".".join(random.choice(os.listdir(os.environ['EMBEDDING_PATH'])).split(".")[0:2])
-    return EMBEDDING_PROVIDER.get_random()[0][0].id
+    return EMBEDDING_PROVIDER.get_random_id()[0][0].id
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run Embedding Search.")
+    parser.add_argument("--host", type=str, default="127.0.0.1", help="Host address to bind to. Defaults to 127.0.0.1.")
+    parser.add_argument("--port", type=int, default=8000, help="Port to listen on. Defaults to 8000.")
+    parser.add_argument("--reload", action="store_true", help="Enable auto-reload on code changes. For development purposes.")
+    parser.add_argument('--model_path', type=str, help="Path to model", required=True)
+    parser.add_argument('--embedding_path', type=str, help="Embeddings folder")
+    asyncio.run(
+        init(parser.parse_args())
+    )
+

@@ -1,0 +1,44 @@
+<form action="/embedding_search/upload/" method="post" enctype="multipart/form-data">
+    <div style="margin-right:25px;">
+        <div style="margin-bottom: 6px;"><label for="file">Format</label></div>
+        <div><select name="format" id="format" required>
+            <option value="pdb">PDB</option>
+            <option value="mmcif">mmCIF</option>
+            <option value="binarycif">BinaryCIF</option>
+        </select></div>
+    </div>
+    <div>
+        <div style="margin-bottom: 6px;"><label for="file" >File</label></div>
+        <div><input type="file" name="file" id="file" required></div>
+    </div>
+    <div style="margin-right:25px;">
+        <div style="margin-bottom: 6px;"><label for="chain_id">Chain ID</label></div>
+        <div><input style="width: 50px;" type="text" name="chain_id" id="chain_id" placeholder="(all)"></div>
+    </div>
+
+    <div style="margin-right:25px;">
+        <div style="margin-bottom: 6px;"><label for="search_type" >Result Type</label></div>
+        <div><select id="search_type" name="search_type" style="width: 100px;" required>
+            <option value="chain" {% if granularity == "chain"%} selected {%  endif %}>Chain</option>
+            <option value="assembly" {% if granularity == "assembly"%} selected {%  endif %}>Assembly</option>
+        </select></div>
+    </div>
+
+    <div style="margin-right:25px;">
+        <div style="margin-bottom: 6px;">&nbsp;</div>
+        <div>
+            <label for="include_csm" >CSM</label>
+            <input type="checkbox" id="include_csm" name="include_csm" value="true" {% if include_csm %} checked {%  endif %}>
+        </div>
+    </div>
+
+    <div style="margin-right:25px;">
+        <div style="margin-bottom: 6px;"><label for="n_res" >N Res</label></div>
+        <div><input type="text" id="n_res" name="n_res" value="{% if n_results %}{{ n_results }}{% else %}100{%  endif %}" style="width: 50px;" required></div>
+    </div>
+
+    <div style="margin-right:25px;">
+        <div style="margin-bottom: 6px;"><label >&nbsp; </label></div>
+        <div><button type="submit">Upload</button></div>
+    </div>
+</form>

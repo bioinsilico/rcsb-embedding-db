@@ -1,0 +1,24 @@
+
+{% block content %}
+    <script>
+        function switchForm(){
+            let block_id = "upload_form";
+            let none_id = "pdb_form";
+            if(document.getElementById(block_id).style.display === "block"){
+                block_id = "pdb_form";
+                none_id = "upload_form";
+            }
+            document.getElementById(none_id).style.display = "none";
+            document.getElementById(block_id).style.display = "block";
+        }
+    </script>
+    <div id="pdb_form" style="display: block">
+        {% include "form.html.jinja" %}
+        <div class="form_switch" style="margin-bottom: 50px; margin-top: 15px;" onclick="switchForm()" >Switch to upload form</div>
+    </div>
+    <div id="upload_form" style="display: none">
+        {% include "upload.html.jinja" %}
+        <div class="form_switch" style="margin-bottom: 50px; margin-top: 15px;" onclick="switchForm()" >Switch to PDB form</div>
+    </div>
+
+{% endblock %}

@@ -1,10 +1,18 @@
-<table>
-    {% for item in results %}
-    <TR>
-        <TD ><span>{{item.index}}</span></TD>
-        <TD ><img width="100" src="{{ item.img_url }}" alt="{{ item.instance_id }}"></TD>
-        <TD ><a href="{{ item.alignment_url }}" target="_blank">{{item.instance_id}}</a></TD>
-        <TD ><span>{{item.score}}</span></TD>
-    </TR>
-    {% endfor %}
-</table>
+<div style="margin-top: 15px;">
+    <table>
+        {% for item in results %}
+        <TR>
+            <TD ><span>{{item.index}}</span></TD>
+            <TD ><img width="100" src="{{ item.img_url }}" alt="{{ item.instance_id }}"></TD>
+            <TD >
+                {% if item.alignment_url %}
+                    <a href="{{ item.alignment_url }}" target="_blank">{{item.instance_id}}</a>
+                {% else %}
+                    <span> {{item.instance_id}} </span>
+                {% endif %}
+            </TD>
+            <TD ><span>{{item.score}}</span></TD>
+        </TR>
+        {% endfor %}
+    </table>
+</div>

@@ -96,14 +96,15 @@ class EmbeddingLoader:
     def flush(self):
         self.collection.flush()
 
-    def index_collection(self):
+    def index_collection(self, index_params=None):
         print(f"Indexing collection")
         # Create an index on the embedding field with cosine distance
-        index_params = {
-            "metric_type": "COSINE",
-            "index_type": "HNSW",  # You can choose other index types as needed
-            "params": {"M": 16, "efConstruction": 128}
-        }
+        if not index_params:
+            index_params = {
+                "metric_type": "COSINE",
+                "index_type": "HNSW",  # You can choose other index types as needed
+                "params": {"M": 16, "efConstruction": 128}
+            }
         self.collection.create_index(
             field_name=self.EMBEDDING_FIELD,
             index_params=index_params

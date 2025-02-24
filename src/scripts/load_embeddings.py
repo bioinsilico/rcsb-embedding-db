@@ -28,7 +28,7 @@ def main(embedding_root, embedding_tag):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run Embedding Search.")
-    parser.add_argument('--embedding_root', type=str, help="Embeddings folder")
-    parser.add_argument('--embedding_tag', type=str, help="Embeddings folder")
+    parser.add_argument('--embedding_root', type=str, help="Embeddings folder", required=True)
+    parser.add_argument('--embedding_tag', type=str, help="Embeddings folder", required=True)
     args = parser.parse_args()
     main(args.embedding_root, args.embedding_tag)

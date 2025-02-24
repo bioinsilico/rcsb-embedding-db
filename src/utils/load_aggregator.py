@@ -1,5 +1,5 @@
 
-from lightning_module.inference.lightning_pst_embedding_pooling import LitStructurePstEmbeddingPooling
+from lightning_module.inference.embedding_inference import LitEmbeddingInference
 from networks.transformer_nn import TransformerEmbeddingCosine
 
 
@@ -13,7 +13,7 @@ def load_aggregator(checkpoint):
         res_block_layers=12
     )
 
-    return LitStructurePstEmbeddingPooling.load_from_checkpoint(
+    return LitEmbeddingInference.load_from_checkpoint(
         checkpoint,
         nn_model=nn_model
     ).model

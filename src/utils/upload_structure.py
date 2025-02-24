@@ -18,13 +18,15 @@ def get_structure_from_stream(file_stream, format="PDB", chain_id=None):
         cif_file = CIFFile.read(file_stream)
         structure = get_structure(
             cif_file,
-            model=1
+            model=1,
+            use_author_fields=False
         )
     elif format == "binarycif":
         cif_file = BinaryCIFFile.read(file_stream)
         structure = get_structure(
             cif_file,
-            model=1
+            model=1,
+            use_author_fields=False
         )
 
     if chain_id:

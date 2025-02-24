@@ -10,28 +10,31 @@ from utils.load_aggregator import load_aggregator
 
 
 def get_structure_from_stream(file_stream, format="PDB", chain_id=None):
-    if format == "pdb":
-        structure = PDBFile.read(file_stream).get_structure(
-            model=1
-        )
-    elif format == "mmcif":
-        cif_file = CIFFile.read(file_stream)
-        structure = get_structure(
-            cif_file,
-            model=1,
-            use_author_fields=False
-        )
-    elif format == "binarycif":
-        cif_file = BinaryCIFFile.read(file_stream)
-        structure = get_structure(
-            cif_file,
-            model=1,
-            use_author_fields=False
-        )
+    try:
+        if format == "pdb":
+            structure = PDBFile.read(file_stream).get_structure(
+                model=1
+            )
+        elif format == "mmcif":
+            cif_file = CIFFile.read(file_stream)
+            structure = get_structure(
+                cif_file,
+                model=1,
+                use_author_fields=False
+            )
+        elif format == "binarycif":
+            cif_file = BinaryCIFFile.read(file_stream)
+            structure = get_structure(
+                cif_file,
+                model=1,
+                use_author_fields=False
+            )
 
-    if chain_id:
-        structure = structure[structure.chain_id == chain_id]
-    return structure
+        if chain_id:
+            structure = structure[structure.chain_id == chain_id]
+        return structure
+    except:
+        return None
 
 
 def get_embedding_method(model_path):

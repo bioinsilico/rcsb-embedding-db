@@ -91,6 +91,13 @@ async def upload_file(
     file_content = await file.read()
     file_stream = StringIO(file_content.decode('utf-8'))
     structure = get_structure_from_stream(file_stream, format, chain_id)
+    if structure is None or len(structure) == 0:
+        random_id = EMBEDDING_PROVIDER.get_random_id()
+        context = {"rcsb_id": "null", "search_id": random_id, "request": request, "search_by": "chain"}
+        return templates.TemplateResponse(
+            name="null-upload.html.jinja", context=context
+        )
+
     structure_embedding = EMBEDDING_PROVIDER.compute_embeddings(structure)
 
     collection_name = MilvusCollection.assembly_collection if search_type == "assembly" else MilvusCollection.instance_collection

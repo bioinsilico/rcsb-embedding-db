@@ -1,3 +1,4 @@
+import argparse
 import os
 
 import pandas as pd
@@ -6,25 +7,21 @@ from tqdm import tqdm
 from utils.embedding_af_loader import EmbeddingLoader
 import concurrent.futures
 
-
-af_embedding_folder = "/mnt/vdc1/computed-models/embeddings"
-collection_name = 'af_embeddings'
-dim = 1280
-embedding_loader = EmbeddingLoader(
-    collection_name,
-    dim
-)
+dim = 1536
 
 
-def insert_file(file):
-    embedding_loader.insert_df(pd.read_pickle(file))
-    return f"Loaded {file}"
+def main(af_embedding_folder):
 
+    embedding_loader = EmbeddingLoader(
+        'af_embeddings',
+        dim
+    )
 
-def main():
+    def __insert_file(file):
+        embedding_loader.insert_df(pd.read_pickle(file))
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-        futures = [executor.submit(insert_file, f'{af_embedding_folder}/{df}') for df in os.listdir(af_embedding_folder)]
+        futures = [executor.submit(__insert_file, f'{af_embedding_folder}/{df}') for df in os.listdir(af_embedding_folder)]
         with tqdm(total=len(futures), desc="Loading embeddings", unit="file") as pbar:
             for _ in concurrent.futures.as_completed(futures):
                 pbar.update(1)
@@ -35,4 +32,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description="Run Embedding Search.")
+    parser.add_argument('--af_embedding_folder', type=str, help="Embeddings folder")
+    args = parser.parse_args()
+    main(args.af_embedding_folder)

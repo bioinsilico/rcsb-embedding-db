@@ -103,7 +103,7 @@ class EmbeddingLoader:
             index_params = {
                 "metric_type": "COSINE",
                 "index_type": "HNSW",  # You can choose other index types as needed
-                "params": {"M": 16, "efConstruction": 128}
+                "params": {"M": 32, "efConstruction": 128}
             }
         self.collection.create_index(
             field_name=self.EMBEDDING_FIELD,

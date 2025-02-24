@@ -33,6 +33,6 @@ def main(af_embedding_folder):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run Embedding Search.")
-    parser.add_argument('--af_embedding_folder', type=str, help="Embeddings folder")
+    parser.add_argument('--af_embedding_folder', type=str, help="Embeddings folder", required=True)
     args = parser.parse_args()
     main(args.af_embedding_folder)

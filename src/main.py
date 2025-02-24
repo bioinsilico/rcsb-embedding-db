@@ -40,7 +40,7 @@ async def search_chain(
     )
     if not rcsb_embedding:
         random_id = EMBEDDING_PROVIDER.get_random_id()
-        context = {"rcsb_id": rcsb_id, "search_id": random_id, "request": request}
+        context = {"rcsb_id": rcsb_id, "search_id": random_id, "request": request, "search_by": "chain"}
         return templates.TemplateResponse(
             name="null-instance.html.jinja", context=context
         )

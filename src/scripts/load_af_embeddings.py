@@ -10,14 +10,14 @@ import concurrent.futures
 dim = 1536
 
 
-def main(af_embedding_folder, only_index):
+def main(af_embedding_folder, index_only):
 
     embedding_loader = EmbeddingLoader(
         'af_embeddings',
         dim
     )
 
-    if only_index:
+    if index_only:
         embedding_loader.index_collection()
         embedding_loader.load_collection()
         return
@@ -41,6 +41,6 @@ def main(af_embedding_folder, only_index):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run Embedding Search.")
     parser.add_argument('--af_embedding_folder', type=str, help="Embeddings folder", required=True)
-    parser.add_argument('--only_index', action='store_true')
+    parser.add_argument('--index_only', action='store_true')
     args = parser.parse_args()
-    main(args.af_embedding_folder, args.only_index)
+    main(args.af_embedding_folder, args.index_only)

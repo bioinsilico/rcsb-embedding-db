@@ -10,15 +10,22 @@ import concurrent.futures
 dim = 1536
 
 
-def main(af_embedding_folder):
+def main(af_embedding_folder, only_index):
 
     embedding_loader = EmbeddingLoader(
         'af_embeddings',
         dim
     )
 
+    if only_index:
+        embedding_loader.index_collection()
+        embedding_loader.load_collection()
+        return
+
     def __insert_file(file):
         embedding_loader.insert_df(pd.read_pickle(file))
+
+    embedding_loader.create_embedding_collection()
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
         futures = [executor.submit(__insert_file, f'{af_embedding_folder}/{df}') for df in os.listdir(af_embedding_folder)]
@@ -34,5 +41,6 @@ def main(af_embedding_folder):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run Embedding Search.")
     parser.add_argument('--af_embedding_folder', type=str, help="Embeddings folder", required=True)
+    parser.add_argument('--only_index', action='store_true')
     args = parser.parse_args()
-    main(args.af_embedding_folder)
+    main(args.af_embedding_folder, args.only_index)

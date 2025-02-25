@@ -19,24 +19,19 @@ class EmbeddingLoader:
             collection_name,
             dim
     ):
+        self.collection_name = collection_name
+        self.dim = dim
         self.collection = None
-        self.connect()
-        self.create_embedding_collection(
-            collection_name,
-            dim
-        )
+        self.__connect()
+        self.__set_collection()
 
-    def connect(self):
+    def __connect(self):
         connections.connect(
             host=self.HOST,
             port=self.PORT
         )
 
-    def create_embedding_collection(
-            self,
-            collection_name,
-            dim
-    ):
+    def __set_collection(self):
         id_field = FieldSchema(
             name=self.ID_FIELD,
             dtype=DataType.VARCHAR,
@@ -47,7 +42,7 @@ class EmbeddingLoader:
         embedding_field = FieldSchema(
             name=self.EMBEDDING_FIELD,
             dtype=DataType.FLOAT16_VECTOR,
-            dim=dim
+            dim=self.dim
         )
 
         collection_schema = CollectionSchema(
@@ -55,10 +50,12 @@ class EmbeddingLoader:
             description="Collection storing embeddings with cosine distance."
         )
 
-        if collection_name in list(list_collections()):
-            utility.drop_collection(collection_name)
+        self.collection = Collection(name=self.collection_name, schema=collection_schema)
 
-        self.collection = Collection(name=collection_name, schema=collection_schema)
+    def create_embedding_collection(self):
+        if self.collection_name in list(list_collections()):
+            utility.drop_collection(self.collection_name)
+        self.__set_collection()
 
     def insert_df(self, df):
         if not {self.ID_FIELD, self.EMBEDDING_FIELD}.issubset(df.columns):

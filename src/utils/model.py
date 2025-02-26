@@ -44,8 +44,11 @@ class ResidueEmbeddingAggregator(nn.Module):
             self.embedding = nn.Sequential(res_block)
 
     def forward(self, x, x_mask=None):
-        return self.embedding(self.transformer(x, src_key_padding_mask=x_mask).sum(dim=1))
-
+        if x.dim() == 2:
+            return self.embedding(self.transformer(x, src_key_padding_mask=x_mask).sum(dim=0))
+        if x.dim() == 3:
+            return self.embedding(self.transformer(x, src_key_padding_mask=x_mask).sum(dim=1))
+        raise RuntimeError("Tensor dimension error. Allowed shapes (batch, sequence, residue_embeddings) or (sequence, residue_embeddings)")
 
 
 class ResBlock(nn.Module):

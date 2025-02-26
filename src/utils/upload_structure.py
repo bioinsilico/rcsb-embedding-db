@@ -61,6 +61,6 @@ def get_embedding_method(model_path):
             dim=0
         )
         with torch.no_grad():
-            return aggregator.embedding(aggregator.transformer(embedding_ch).sum(dim=0)).numpy()
+            return aggregator(aggregator.transformer(embedding_ch).sum(dim=0)).numpy()
 
     return __compute_embeddings

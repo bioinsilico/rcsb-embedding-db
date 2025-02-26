@@ -3,17 +3,17 @@ from collections import OrderedDict
 from torch import nn
 
 
-class TransformerEmbeddingCosine(nn.Module):
+class ResidueEmbeddingAggregator(nn.Module):
     dropout = 0.1
 
     def __init__(
             self,
-            input_features=640,
-            dim_feedforward=1280,
-            hidden_layer=640,
-            nhead=10,
+            input_features=1536,
+            dim_feedforward=3072,
+            hidden_layer=1536,
+            nhead=12,
             num_layers=6,
-            res_block_layers=0
+            res_block_layers=12
     ):
         super().__init__()
         encoder_layer = nn.TransformerEncoderLayer(
@@ -43,17 +43,9 @@ class TransformerEmbeddingCosine(nn.Module):
             ])
             self.embedding = nn.Sequential(res_block)
 
-    def embedding_pooling(self, x, x_mask):
+    def forward(self, x, x_mask=None):
         return self.embedding(self.transformer(x, src_key_padding_mask=x_mask).sum(dim=1))
 
-    def forward(self, x, x_mask, y, y_mask):
-        return nn.functional.cosine_similarity(
-            self.embedding_pooling(x, x_mask),
-            self.embedding_pooling(y, y_mask)
-        )
-
-    def get_weights(self):
-        return [(name, param) for name, param in self.embedding.named_parameters()]
 
 
 class ResBlock(nn.Module):

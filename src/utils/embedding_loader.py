@@ -13,6 +13,7 @@ class EmbeddingLoader:
     PORT = '19530'
     ID_FIELD = 'id'
     EMBEDDING_FIELD = 'embedding'
+    LENGTH_FIELD = 'length'
     CSM_FLAG = 'is_csm'
     BATCH_SIZE = 2000
 
@@ -57,8 +58,13 @@ class EmbeddingLoader:
             dtype=DataType.BOOL
         )
 
+        length_field = FieldSchema(
+            name=self.LENGTH_FIELD,
+            dtype=DataType.INT32
+        )
+
         collection_schema = CollectionSchema(
-            fields=[id_field, embedding_field, is_csm],
+            fields=[id_field, embedding_field, is_csm, length_field],
             description="Collection storing embeddings with cosine distance."
         )
 
@@ -67,7 +73,7 @@ class EmbeddingLoader:
 
         self.collection = Collection(name=collection_name, schema=collection_schema)
 
-    def insert_folder(self, embedding_folder, csm_flag):
+    def insert_folder(self, embedding_folder, csm_flag, length_getter):
         print(f"Loading embeddings folder {embedding_folder}")
         for df in load_embeddings_in_batches(embedding_folder, csm_flag, 5*self.BATCH_SIZE):
             if not {self.ID_FIELD, self.EMBEDDING_FIELD, self.CSM_FLAG}.issubset(df.columns):
@@ -85,11 +91,13 @@ class EmbeddingLoader:
                 ids = batch_df[self.ID_FIELD].tolist()
                 embeddings = batch_df[self.EMBEDDING_FIELD].tolist()
                 csm_flags = batch_df[self.CSM_FLAG].tolist()
+                lengths = [length_getter(_id) for _id in ids]
 
                 entities = [
                     ids,  # List of identifiers
                     embeddings,
-                    csm_flags# List of embeddings
+                    csm_flags,  # List of embeddings
+                    lengths
                 ]
                 self.collection.insert(entities)
 

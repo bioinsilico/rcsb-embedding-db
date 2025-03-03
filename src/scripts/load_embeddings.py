@@ -1,7 +1,7 @@
 import argparse
 
 from utils.embedding_loader import EmbeddingLoader
-from utils.length_collector import get_instance_length, get_assembly_length
+
 
 dim = 1536
 
@@ -12,16 +12,8 @@ def main(embedding_root, embedding_tag):
         "instance_embeddings",
         dim
     )
-    embedding_loader.insert_folder(
-        f"{embedding_root}/embedding-{embedding_tag}",
-        False,
-        get_instance_length
-    )
-    embedding_loader.insert_folder(
-        f"{embedding_root}/csm-{embedding_tag}",
-        True,
-        get_instance_length
-    )
+    embedding_loader.insert_folder(f"{embedding_root}/embedding-{embedding_tag}", False)
+    embedding_loader.insert_folder(f"{embedding_root}/csm-{embedding_tag}", True)
     embedding_loader.flush()
     embedding_loader.index_collection()
 
@@ -29,11 +21,7 @@ def main(embedding_root, embedding_tag):
         "assembly_embeddings",
         dim
     )
-    embedding_loader.insert_folder(
-        f"{embedding_root}/assembly-{embedding_tag}",
-        False,
-        get_assembly_length
-    )
+    embedding_loader.insert_folder(f"{embedding_root}/assembly-{embedding_tag}", False)
     embedding_loader.flush()
     embedding_loader.index_collection()
 

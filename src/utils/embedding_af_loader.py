@@ -70,8 +70,7 @@ class EmbeddingLoader:
             batch_df = df.iloc[start_idx:end_idx]
 
             ids = batch_df[self.ID_FIELD].tolist()
-            # embeddings = [(embedding/np.linalg.norm(embedding)).astype(np.float16) for embedding in batch_df[self.EMBEDDING_FIELD]]
-            embeddings = [embedding.astype(np.float16) for embedding in batch_df[self.EMBEDDING_FIELD]]
+            embeddings = [(embedding/np.linalg.norm(embedding)).astype(np.float16) for embedding in batch_df[self.EMBEDDING_FIELD]]
 
             entities = [
                 ids,         # List of identifiers
@@ -87,7 +86,7 @@ class EmbeddingLoader:
         # Create an index on the embedding field with cosine distance
         if not index_params:
             index_params = {
-                "metric_type": "COSINE",
+                "metric_type": "IP",
                 "index_type": "DISKANN",  # You can choose other index types as needed
                 "params": {}
             }

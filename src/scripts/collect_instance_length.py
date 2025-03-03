@@ -5,6 +5,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 
 from utils.length_collector import get_instance_length
 
+
 def pdb_file_path(pdb_path, pdb):
     if "_" in pdb:
         return os.path.join(
@@ -17,6 +18,7 @@ def pdb_file_path(pdb_path, pdb):
         )
     return os.path.join(pdb_path, "pdb", pdb[1:3], f"{pdb}.bcif.gz")
 
+
 def process_file(args_tuple):
     filename, asym_id, rcsb_id = args_tuple
     if not os.path.isfile(filename):
@@ -25,6 +27,7 @@ def process_file(args_tuple):
     # Compute the instance length for the file
     length = get_instance_length(filename, asym_id)
     return f"{rcsb_id},{length}\n"
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Test length collectors")

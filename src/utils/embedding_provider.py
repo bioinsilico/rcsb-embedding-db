@@ -12,7 +12,7 @@ from utils.upload_structure import get_embedding_method
 
 class EmbeddingProvider:
 
-    HOST = '132.249.213.96'
+    HOST = 'localhost'
     PORT = '19530'
     ID_FIELD = 'id'
     EMBEDDING_FIELD = 'embedding'

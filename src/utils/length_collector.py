@@ -62,4 +62,4 @@ if __name__ == "__main__":
     folder_path = args.folder_path
     for filename in [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]:
         rcsb_id, _ = os.path.splitext(filename)
-        print(get_instance_length(rcsb_id))
+        print(rcsb_id, get_instance_length(rcsb_id))

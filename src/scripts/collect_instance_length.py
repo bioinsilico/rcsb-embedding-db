@@ -20,13 +20,25 @@ def pdb_file_path(pdb_path, pdb):
 
 
 def process_file(args_tuple):
-    filename, asym_id, rcsb_id = args_tuple
+    filename, asym_id_list, pdb = args_tuple
     if not os.path.isfile(filename):
         print(f"File not found: {filename}")
         return None
     # Compute the instance length for the file
-    length = get_instance_length(filename, asym_id)
-    return f"{rcsb_id},{length}\n"
+    length_list = get_instance_length(filename, asym_id_list)
+    return [(f"{pdb}.{asym_id}", length) for asym_id, length in length_list]
+
+
+def parse_instances(instance_list):
+    chain_map = {}
+    for rcsb_id in open(instance_list):
+        pdb = rcsb_id.split(".")[0].lower()
+        asym_id = rcsb_id.split(".")[1].strip()
+        if pdb in chain_map:
+            chain_map[pdb].append(asym_id)
+        else:
+            chain_map[pdb] = [asym_id]
+    return chain_map
 
 
 if __name__ == "__main__":
@@ -41,19 +53,34 @@ if __name__ == "__main__":
     instance_length_output_file = args.instance_length_output_file
 
     # Prepare the list of file information
+    chain_map = parse_instances(instance_list)
     folder_files = [(
-        pdb_file_path(pdb_path, rcsb_id.split(".")[0].lower()),
-        rcsb_id.split(".")[1].strip(),
-        rcsb_id.strip()
-    ) for rcsb_id in open(instance_list)]
+        pdb_file_path(pdb_path, pdb.lower()),
+        asym_id_list,
+        pdb.lower()
+    ) for (pdb, asym_id_list) in chain_map.items()]
 
-    # Use ProcessPoolExecutor for CPU-bound tasks
-    with ProcessPoolExecutor() as executor:
+    num_cpus = os.cpu_count()
+    print(f"Using {num_cpus} CPU cores for processing.")
+
+    BATCH_SIZE = 10000
+
+    with ProcessPoolExecutor(max_workers=num_cpus) as executor:
         futures = {executor.submit(process_file, item): item for item in folder_files}
         with tqdm(total=len(folder_files), desc="Loading instance length", unit="file") as pbar:
             with open(instance_length_output_file, "w") as f:
+                batch_results = []
                 for future in as_completed(futures):
                     result = future.result()
-                    if result:
-                        f.write(result)
                     pbar.update(1)
+                    if result is None:
+                        continue
+                    batch_results.extend([f"{rcsb_id},{length}\n" for (rcsb_id, length) in result])
+                    if len(batch_results) >= BATCH_SIZE:
+                        f.writelines(batch_results)
+                        f.flush()
+                        batch_results = []
+
+                if batch_results:
+                    f.writelines(batch_results)
+                    f.flush()

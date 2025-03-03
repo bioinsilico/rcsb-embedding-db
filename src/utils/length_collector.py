@@ -27,22 +27,28 @@ def gzip_file_to_binary_stream(file_path):
         return None
 
 
-def get_instance_length(pdb_file, asym_id):
+def get_instance_length(pdb_file, asym_id_list):
     bcif = BinaryCIFFile.read(gzip_file_to_binary_stream(pdb_file))
     structure = get_structure(
         bcif,
         use_author_fields=False,
         model=1
     )
-    structure = structure[structure.chain_id == asym_id]
+    length_list = []
     for atom_ch in chain_iter(structure):
+        asym_id = get_chains(atom_ch)[0]
+        if asym_id not in asym_id_list:
+            continue
         atom_res = atom_ch[filter_amino_acids(atom_ch)]
         if len(atom_res) == 0:
             continue
         res = get_residues(atom_res)
         if res and len(res) > 0:
-            return len(res[0])
-    return 0
+            length_list.append((asym_id, len(res[0])))
+        else:
+            length_list.append((asym_id, 0))
+
+    return length_list
 
 
 def get_assembly_length(rcsb_id):

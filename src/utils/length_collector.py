@@ -1,3 +1,6 @@
+import argparse
+import os
+
 from biotite.database import rcsb
 from biotite.structure import chain_iter, filter_amino_acids, get_residues, get_chains
 from biotite.structure.io.pdbx import get_structure, list_assemblies, get_assembly, BinaryCIFFile
@@ -49,3 +52,14 @@ def get_assembly_length(rcsb_id):
                 assembly_len += len(res[0])
         return assembly_len
     return 0
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description="Test length collectors")
+    parser.add_argument('--folder_path', type=str, help="Embeddings folder", required=True)
+    args = parser.parse_args()
+    folder_path = args.folder_path
+    for filename in [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]:
+        rcsb_id, _ = os.path.splitext(filename)
+        print(get_instance_length(rcsb_id))

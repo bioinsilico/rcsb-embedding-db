@@ -79,7 +79,7 @@ class EmbeddingLoader:
         with open(length_file, 'r') as file:
             csv_reader = csv.reader(file)
             for row in csv_reader:
-                self.length_map[row[0].upper()] = row[1]
+                self.length_map[row[0].upper()] = int(row[1])
 
     def insert_folder(self, embedding_folder, csm_flag):
         print(f"Loading embeddings folder {embedding_folder}")
@@ -104,8 +104,8 @@ class EmbeddingLoader:
                 entities = [
                     ids,  # List of identifiers
                     embeddings,
-                    csm_flags,  # List of embeddings
-                    lengths
+                    lengths,
+                    csm_flags  # List of embeddings
                 ]
                 self.collection.insert(entities)
 

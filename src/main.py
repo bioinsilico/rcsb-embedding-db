@@ -162,6 +162,24 @@ async def form(request: Request):
     )
 
 
+@app.get("/embedding_search/help", response_class=HTMLResponse)
+async def help_form(request: Request):
+    random_id = EMBEDDING_PROVIDER.get_random_id()
+    context = {
+        "search_id": random_id,
+        "request": request,
+        "search_by": "chain",
+        "granularity": "chain",
+        "n_results": 100,
+        "include_csm": False,
+        "similarity_type": "local"
+
+    }
+    return templates.TemplateResponse(
+        name="help.html.jinja", context=context
+    )
+
+
 @app.get("/embedding_search/upload_form", response_class=HTMLResponse)
 async def upload_form(request: Request):
     return templates.TemplateResponse("index.upload.html.jinja", {"request": request})

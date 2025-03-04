@@ -1,0 +1,26 @@
+<div>
+    <h3>Search Parameters</h3>
+    <div style="margin-bottom: 10px;"><b>Search By</b></div>
+    <div style="margin-left: 20px;margin-bottom: 10px;">Chain: Use a PDB chain as a query for the search.</div>
+    <div style="margin-left: 20px;margin-bottom: 15px;">Assembly: Use a PDB assembly as a query for the search.</div>
+
+    <div style="margin-bottom: 15px;"><b>PDB ID</b>: 4-letters code of a PDB entry.</div>
+    <div style="margin-bottom: 15px;"><b>Chain</b>: Instance identifier for the PDB chain defined as the mmcif term label_asym_id.</div>
+    <div style="margin-bottom: 15px;"><b>Assembly</b>: Assembly identifier defined as the mmcif term _pdbx_struct_assembly.id.</div>
+
+    <div style="margin-bottom: 10px;"><b>Return</b></div>
+    <div style="margin-left: 20px;margin-bottom: 10px;">Chains: Returns PDB chains.</div>
+    <div style="margin-left: 20px;margin-bottom: 15px;">Assemblies: Returns PDB assemblies.</div>
+
+    <div style="margin-bottom: 15px;"><b>CSM</b>: Include Computed Structure Models in the search results.</div>
+
+    <div style="margin-bottom: 15px;"><b># results</b>: Number of returned search results.</div>
+
+    <div style="margin-bottom: 10px;"><b>Similarity Type</b></div>
+    <div style="margin-left: 20px;margin-bottom: 10px;">Local: Uses unmodified scores from the embedding models. Local structure similarity may rank higher.</div>
+    <div style="margin-left: 20px;margin-bottom: 15px;">Global: Scores are scaled based on the relationship between the number of residues, using the factor: min(query_length, target_length) / max(query_length, target_length).</div>
+
+    <div style="margin-bottom: 15px;"><b>Switch to upload form</b>: Use a coordinates file as a query for the search.</div>
+    <div style="margin-left: 20px;margin-bottom: 10px;">Chain ID: Use a specif chain of the structure. If not present all chains are used (optional).</div>
+
+</div>

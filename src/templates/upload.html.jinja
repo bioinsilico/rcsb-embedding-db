@@ -1,6 +1,6 @@
 <form action="/embedding_search/upload/" method="post" enctype="multipart/form-data">
     <div style="margin-right:25px;">
-        <div style="margin-bottom: 6px;"><label for="file">Format</label></div>
+        <div style="margin-bottom: 6px;"><label for="format">Format</label></div>
         <div><select name="format" id="format" required>
             <option value="pdb">PDB</option>
             <option value="mmcif">mmCIF</option>
@@ -35,6 +35,14 @@
     <div style="margin-right:25px;">
         <div style="margin-bottom: 6px;"><label for="n_res" >N Res</label></div>
         <div><input type="text" id="n_res" name="n_res" value="{% if n_results %}{{ n_results }}{% else %}100{%  endif %}" style="width: 50px;" required></div>
+    </div>
+
+    <div style="margin-right:25px;">
+        <div style="margin-bottom: 6px;">&nbsp;</div>
+        <div>
+            <label for="global_similarity" >Global Similarity</label>
+            <input type="checkbox" id="global_similarity" name="global_similarity" value="false" {% if global_similarity %} checked {%  endif %}>
+        </div>
     </div>
 
     <div style="margin-right:25px;">

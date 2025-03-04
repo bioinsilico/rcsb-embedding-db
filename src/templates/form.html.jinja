@@ -7,7 +7,8 @@
             const searchType = document.getElementById('searchType').value ?? "chain";
             const searchBy = document.getElementById('searchBy').value ?? "chain";
             const includeCsm = document.getElementById('includeCsm').checked;
-            window.location.href = `/embedding_search/${pdbId}/${compId}?search_by=${searchBy}&granularity=${searchType}&n_results=${n_res}&include_csm=${includeCsm}`;
+            const globalSimilarity = document.getElementById('globalSimilarity').checked;
+            window.location.href = `/embedding_search/${pdbId}/${compId}?search_by=${searchBy}&granularity=${searchType}&n_results=${n_res}&include_csm=${includeCsm}&global_similarity=${globalSimilarity}`;
         }
         function changeSearchBy(){
             const searchType = document.getElementById('searchBy').value;
@@ -58,6 +59,14 @@
     <div style="margin-right:25px;">
         <div style="margin-bottom: 6px;"><label for="n_res" >N Res</label></div>
         <div><input type="text" id="n_res" name="n_res" value="{% if n_results %}{{ n_results }}{% else %}100{%  endif %}" style="width: 50px;" required></div>
+    </div>
+
+    <div style="margin-right:25px;">
+        <div style="margin-bottom: 6px;">&nbsp;</div>
+        <div>
+            <label for="globalSimilarity" >Global Similarity</label>
+            <input type="checkbox" id="globalSimilarity" name="globalSimilarity" value="false" {% if global_similarity %} checked {%  endif %}>
+        </div>
     </div>
 
     <div style="margin-right:25px;">

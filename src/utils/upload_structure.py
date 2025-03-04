@@ -46,10 +46,12 @@ def get_embedding_method(model_path):
 
     def __compute_embeddings(structure):
         embedding_ch = []
+        length = 0
         for atom_ch in chain_iter(structure):
             atom_res = atom_ch[filter_amino_acids(atom_ch)]
             if len(atom_res) == 0 or len(get_residues(atom_res)[0]) < 10:
                 continue
+            length += len(get_residues(atom_res)[0])
             protein_chain = ProteinChain.from_atomarray(atom_ch)
             protein = ESMProtein.from_protein_chain(protein_chain)
             protein_tensor = esm3_model.encode(protein)
@@ -61,6 +63,6 @@ def get_embedding_method(model_path):
             dim=0
         )
         with torch.no_grad():
-            return aggregator(embedding_ch).numpy()
+            return aggregator(embedding_ch).numpy(), length
 
     return __compute_embeddings

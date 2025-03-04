@@ -16,6 +16,7 @@ class EmbeddingProvider:
     PORT = '19530'
     ID_FIELD = 'id'
     EMBEDDING_FIELD = 'embedding'
+    LENGTH_FIELD = 'length'
     CSM_FLAG = 'is_csm'
     EMBEDDING_DIM = 1536
 
@@ -101,7 +102,7 @@ class EmbeddingProvider:
         )
         if len(result) == 0:
             return None
-        return result[0][self.EMBEDDING_FIELD]
+        return result[0][self.EMBEDDING_FIELD], result[0][self.LENGTH_FIELD]
 
     def get_random_id(self):
         if self.embedding_path:

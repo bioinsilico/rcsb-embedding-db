@@ -21,6 +21,11 @@ templates = Jinja2Templates(directory="./templates")
 EMBEDDING_PROVIDER = EmbeddingProvider()
 
 
+def __global_similarity_scale(query_length, target_length, score):
+    scale_factor = min(query_length, target_length) / max(query_length, target_length)
+    return (scale_factor * score ** 2) ** 3
+
+
 @app.get("/embedding_search/{rcsb_id}/{comp_id}", response_class=HTMLResponse)
 async def search_chain(
         request: Request,
@@ -29,12 +34,13 @@ async def search_chain(
         search_by: str = "chain",
         granularity: str = "chain",
         n_results: int = 100,
-        include_csm: bool = False
+        include_csm: bool = False,
+        global_similarity: bool = False
 ):
 
     rcsb_id = build_id(search_by, rcsb_id, comp_id)
     collection_name = MilvusCollection.assembly_collection if search_by == "assembly" else MilvusCollection.instance_collection
-    rcsb_embedding = EMBEDDING_PROVIDER.get_by_id(
+    rcsb_embedding, rcsb_length = EMBEDDING_PROVIDER.get_by_id(
         collection=collection_name,
         query_id=rcsb_id
     )
@@ -52,6 +58,13 @@ async def search_chain(
         is_csm=include_csm,
         n_results=n_results
     )
+    if global_similarity:
+        sorted(
+            search_result[0],
+            key=lambda r: __global_similarity_scale(rcsb_length, r.length, r.distance),
+            reverse=True
+        )
+
     results = [
         {
             "index": idx,
@@ -86,11 +99,12 @@ async def upload_file(
         chain_id: str = Form(None),
         search_type: str = Form(None),
         n_res: int = Form(None),
-        include_csm: bool = Form(None)
+        include_csm: bool = Form(None),
+        global_similarity: bool = Form(False)
 ):
     file_content = await file.read()
     file_stream = StringIO(file_content.decode('utf-8'))
-    structure = get_structure_from_stream(file_stream, format, chain_id)
+    structure, structure_length = get_structure_from_stream(file_stream, format, chain_id)
     if structure is None or len(structure) == 0:
         random_id = EMBEDDING_PROVIDER.get_random_id()
         context = {"rcsb_id": "null", "search_id": random_id, "request": request, "search_by": "chain"}
@@ -107,6 +121,14 @@ async def upload_file(
         is_csm=include_csm,
         n_results=n_res
     )
+
+    if global_similarity:
+        sorted(
+            search_result[0],
+            key=lambda r: __global_similarity_scale(structure_length, r.length, r.distance),
+            reverse=True
+        )
+
     results = [
         {
             "index": idx,

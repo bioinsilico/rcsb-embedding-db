@@ -1,3 +1,4 @@
+import csv
 import os
 import numpy as np
 import pandas as pd
@@ -13,6 +14,7 @@ class EmbeddingLoader:
     PORT = '19530'
     ID_FIELD = 'id'
     EMBEDDING_FIELD = 'embedding'
+    LENGTH_FIELD = 'length'
     CSM_FLAG = 'is_csm'
     BATCH_SIZE = 2000
 
@@ -22,6 +24,7 @@ class EmbeddingLoader:
             dim
     ):
         self.collection = None
+        self.length_map = {}
         self.connect()
         self.create_embedding_collection(
             collection_name,
@@ -52,13 +55,18 @@ class EmbeddingLoader:
             dim=dim
         )
 
+        length_field = FieldSchema(
+            name=self.LENGTH_FIELD,
+            dtype=DataType.INT32
+        )
+
         is_csm = FieldSchema(
             name=self.CSM_FLAG,
             dtype=DataType.BOOL
         )
 
         collection_schema = CollectionSchema(
-            fields=[id_field, embedding_field, is_csm],
+            fields=[id_field, embedding_field, length_field, is_csm],
             description="Collection storing embeddings with cosine distance."
         )
 
@@ -66,6 +74,12 @@ class EmbeddingLoader:
             utility.drop_collection(collection_name)
 
         self.collection = Collection(name=collection_name, schema=collection_schema)
+
+    def load_lengths(self, length_file):
+        with open('your_file.csv', 'r') as file:
+            csv_reader = csv.reader(file)
+            for row in csv_reader:
+                self.length_map[row[0]] = row[1]
 
     def insert_folder(self, embedding_folder, csm_flag):
         print(f"Loading embeddings folder {embedding_folder}")
@@ -85,11 +99,13 @@ class EmbeddingLoader:
                 ids = batch_df[self.ID_FIELD].tolist()
                 embeddings = batch_df[self.EMBEDDING_FIELD].tolist()
                 csm_flags = batch_df[self.CSM_FLAG].tolist()
+                lengths = [self.length_map[_id] for _id in ids]
 
                 entities = [
                     ids,  # List of identifiers
                     embeddings,
-                    csm_flags# List of embeddings
+                    csm_flags,  # List of embeddings
+                    lengths
                 ]
                 self.collection.insert(entities)
 

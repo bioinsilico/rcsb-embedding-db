@@ -76,7 +76,7 @@ class EmbeddingLoader:
         self.collection = Collection(name=collection_name, schema=collection_schema)
 
     def load_lengths(self, length_file):
-        with open('your_file.csv', 'r') as file:
+        with open(length_file, 'r') as file:
             csv_reader = csv.reader(file)
             for row in csv_reader:
                 self.length_map[row[0].upper()] = row[1]

@@ -58,9 +58,10 @@ async def search_chain(
         is_csm=include_csm,
         n_results=n_results
     )
+    search_result = search_result[0]
     if global_similarity:
-        sorted(
-            search_result[0],
+        search_result = sorted(
+            search_result,
             key=lambda r: __global_similarity_scale(rcsb_length, r.length, r.distance),
             reverse=True
         )
@@ -72,7 +73,7 @@ async def search_chain(
             "alignment_url": alignment_url(rcsb_id, r.id),
             "img_url": img_url(r.id),
             "score": round(r.distance, 2)
-        } for idx, r in enumerate(search_result[0])
+        } for idx, r in enumerate(search_result)
     ]
 
     context = {
@@ -122,9 +123,10 @@ async def upload_file(
         n_results=n_res
     )
 
+    search_result = search_result[0]
     if global_similarity:
-        sorted(
-            search_result[0],
+        search_result = sorted(
+            search_result,
             key=lambda r: __global_similarity_scale(structure_length, r.length, r.distance),
             reverse=True
         )
@@ -136,7 +138,7 @@ async def upload_file(
             "alignment_url": None,
             "img_url": img_url(r.id),
             "score": round(r.distance, 2)
-        } for idx, r in enumerate(search_result[0])
+        } for idx, r in enumerate(search_result)
     ]
 
     context = {

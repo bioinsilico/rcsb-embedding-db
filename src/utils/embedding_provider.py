@@ -65,6 +65,7 @@ class EmbeddingProvider:
         return self.collection[collection].search(
             data=[query_embedding],
             expr=f'{self.CSM_FLAG} == False' if not is_csm else None,
+            output_fields=[self.LENGTH_FIELD],
             anns_field=self.EMBEDDING_FIELD,
             limit=n_results,
             param=param
@@ -98,7 +99,7 @@ class EmbeddingProvider:
     ):
         result = self.collection[collection].query(
             expr=f'{self.ID_FIELD} == "{query_id}"',
-            output_fields=[self.EMBEDDING_FIELD]
+            output_fields=[self.EMBEDDING_FIELD, self.LENGTH_FIELD],
         )
         if len(result) == 0:
             return None

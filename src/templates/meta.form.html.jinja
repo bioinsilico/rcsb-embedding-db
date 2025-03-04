@@ -14,11 +14,11 @@
     </script>
     <div id="pdb_form" style="display: block">
         {% include "form.html.jinja" %}
-        <div class="form_switch" style="margin-bottom: 50px; margin-top: 15px;" onclick="switchForm()" >Switch to upload form</div>
+        <div class="form_switch" style="margin-bottom: 50px; margin-top: 15px; width: 150px;" onclick="switchForm()" >Switch to upload form</div>
     </div>
     <div id="upload_form" style="display: none">
         {% include "upload.html.jinja" %}
-        <div class="form_switch" style="margin-bottom: 50px; margin-top: 15px;" onclick="switchForm()" >Switch to PDB form</div>
+        <div class="form_switch" style="margin-bottom: 50px; margin-top: 15px; width: 150px;" onclick="switchForm()" >Switch to PDB form</div>
     </div>
 
 {% endblock %}

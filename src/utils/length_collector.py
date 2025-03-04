@@ -1,7 +1,6 @@
 import gzip
 import io
 
-from biotite.database import rcsb
 from biotite.structure import chain_iter, filter_amino_acids, get_residues, get_chains
 from biotite.structure.io.pdbx import get_structure, list_assemblies, get_assembly, BinaryCIFFile
 

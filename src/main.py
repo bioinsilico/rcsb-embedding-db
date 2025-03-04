@@ -21,11 +21,6 @@ templates = Jinja2Templates(directory="./templates")
 EMBEDDING_PROVIDER = EmbeddingProvider()
 
 
-def __global_similarity_scale(query_length, target_length, score):
-    scale_factor = min(query_length, target_length) / max(query_length, target_length)
-    return (scale_factor * score ** 2) ** 3
-
-
 @app.get("/embedding_search/{rcsb_id}/{comp_id}", response_class=HTMLResponse)
 async def search_chain(
         request: Request,
@@ -55,18 +50,11 @@ async def search_chain(
     search_result = EMBEDDING_PROVIDER.get_by_embedding(
         collection=collection_name,
         query_embedding=rcsb_embedding,
+        query_length=rcsb_length,
         is_csm=include_csm,
-        n_results=n_results
+        n_results=n_results,
+        global_similarity=global_similarity
     )
-    search_result = search_result[0]
-    if global_similarity:
-        for r in search_result:
-            r.distance = __global_similarity_scale(rcsb_length, r.length, r.distance)
-        search_result = sorted(
-            search_result,
-            key=lambda r: r.distance,
-            reverse=True
-        )
 
     results = [
         {
@@ -122,20 +110,11 @@ async def upload_file(
     search_result = EMBEDDING_PROVIDER.get_by_embedding(
         collection=collection_name,
         query_embedding=structure_embedding,
+        query_length=structure_length,
         is_csm=include_csm,
-        n_results=n_res
+        n_results=n_res,
+        global_similarity=global_similarity
     )
-
-    search_result = search_result[0]
-    if global_similarity:
-        for r in search_result:
-            r.distance = __global_similarity_scale(structure_length, r.length, r.distance)
-        search_result = sorted(
-            search_result,
-            key=lambda r: r.distance,
-            reverse=True
-        )
-
 
     results = [
         {

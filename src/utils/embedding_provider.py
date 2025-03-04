@@ -19,6 +19,7 @@ class EmbeddingProvider:
     LENGTH_FIELD = 'length'
     CSM_FLAG = 'is_csm'
     EMBEDDING_DIM = 1536
+    N_RESULTS = 1000
 
     def __init__(
             self
@@ -53,23 +54,36 @@ class EmbeddingProvider:
             self,
             collection,
             query_embedding,
+            query_length,
             is_csm=True,
             n_results=100,
-            param=None
+            param=None,
+            global_similarity=False
     ):
         if param is None:
             param = {
                 "metric_type": "COSINE",
                 "params": {}
             }
-        return self.collection[collection].search(
+        search_result = self.collection[collection].search(
             data=[query_embedding],
             expr=f'{self.CSM_FLAG} == False' if not is_csm else None,
             output_fields=[self.LENGTH_FIELD],
             anns_field=self.EMBEDDING_FIELD,
-            limit=n_results,
+            limit=n_results if n_results > self.N_RESULTS else self.N_RESULTS,
             param=param
-        )
+        )[0]
+
+        if global_similarity:
+            for r in search_result:
+                r.distance = _global_similarity_scale(query_length, r.length, r.distance)
+            search_result = sorted(
+                search_result,
+                key=lambda r: r.distance,
+                reverse=True
+            )
+
+        return search_result[0:n_results]
 
     def get_by_multi_embedding(
             self,
@@ -122,3 +136,8 @@ class EmbeddingProvider:
 class MilvusCollection(str, Enum):
     instance_collection = "instance_embeddings"
     assembly_collection = "assembly_embeddings"
+
+
+def _global_similarity_scale(query_length, target_length, score):
+    scale_factor = min(query_length, target_length) / max(query_length, target_length)
+    return (scale_factor * score ** 2) ** 3

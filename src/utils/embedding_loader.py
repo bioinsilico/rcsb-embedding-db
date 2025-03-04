@@ -79,7 +79,7 @@ class EmbeddingLoader:
         with open('your_file.csv', 'r') as file:
             csv_reader = csv.reader(file)
             for row in csv_reader:
-                self.length_map[row[0]] = row[1]
+                self.length_map[row[0].upper()] = row[1]
 
     def insert_folder(self, embedding_folder, csm_flag):
         print(f"Loading embeddings folder {embedding_folder}")

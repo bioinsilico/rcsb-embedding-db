@@ -60,9 +60,11 @@ async def search_chain(
     )
     search_result = search_result[0]
     if global_similarity:
+        for r in search_result:
+            r.distance = __global_similarity_scale(rcsb_length, r.length, r.distance)
         search_result = sorted(
             search_result,
-            key=lambda r: __global_similarity_scale(rcsb_length, r.length, r.distance),
+            key=lambda r: r.distance,
             reverse=True
         )
 
@@ -83,7 +85,8 @@ async def search_chain(
         "request": request,
         "granularity": granularity,
         "n_results": n_results,
-        "include_csm": include_csm
+        "include_csm": include_csm,
+        "global_similarity": global_similarity
     }
 
     return templates.TemplateResponse(
@@ -125,11 +128,14 @@ async def upload_file(
 
     search_result = search_result[0]
     if global_similarity:
+        for r in search_result:
+            r.distance = __global_similarity_scale(structure_length, r.length, r.distance)
         search_result = sorted(
             search_result,
-            key=lambda r: __global_similarity_scale(structure_length, r.length, r.distance),
+            key=lambda r: r.distance,
             reverse=True
         )
+
 
     results = [
         {
@@ -148,7 +154,8 @@ async def upload_file(
         "search_by": "chain",
         "granularity": search_type,
         "n_results": n_res,
-        "include_csm": include_csm
+        "include_csm": include_csm,
+        "global_similarity": global_similarity
     }
 
     return templates.TemplateResponse(

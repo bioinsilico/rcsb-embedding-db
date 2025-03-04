@@ -4,7 +4,7 @@ from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 from scripts.collect_instance_length import pdb_file_path
-from utils.length_collector import get_instance_length, get_assembly_length
+from utils.length_collector import get_assembly_length
 
 
 def process_file(args_tuple):

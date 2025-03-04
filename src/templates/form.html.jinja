@@ -63,7 +63,7 @@
 
     <div style="margin-right:25px;">
         <div style="margin-bottom: 6px;"><label for="similarityType" >Similarity Type</label></div>
-        <div><select id="similarityType" name="similarityType" style="width: 100px;" required onchange="changeSearchBy()">
+        <div><select id="similarityType" name="similarityType" style="width: 100px;" required >
             <option value="local" {% if similarity_type == "local"%} selected {%  endif %}>Local</option>
             <option value="global" {% if similarity_type == "global"%} selected {%  endif %}>Global</option>
         </select></div>

@@ -38,11 +38,11 @@
     </div>
 
     <div style="margin-right:25px;">
-        <div style="margin-bottom: 6px;">&nbsp;</div>
-        <div>
-            <label for="global_similarity" >Global Similarity</label>
-            <input type="checkbox" id="global_similarity" name="global_similarity" value="false" {% if global_similarity %} checked {%  endif %}>
-        </div>
+        <div style="margin-bottom: 6px;"><label for="similarity_type" >Similarity Type</label></div>
+        <div><select id="similarity_type" name="similarity_type" style="width: 100px;" required onchange="changeSearchBy()">
+            <option value="local" {% if similarity_type == "local"%} selected {%  endif %}>Local</option>
+            <option value="global" {% if similarity_type == "global"%} selected {%  endif %}>Global</option>
+        </select></div>
     </div>
 
     <div style="margin-right:25px;">

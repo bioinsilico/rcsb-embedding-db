@@ -30,7 +30,7 @@ async def search_chain(
         granularity: str = "chain",
         n_results: int = 100,
         include_csm: bool = False,
-        global_similarity: bool = False
+        similarity_type: str = "local"
 ):
 
     rcsb_id = build_id(search_by, rcsb_id, comp_id)
@@ -53,7 +53,7 @@ async def search_chain(
         query_length=rcsb_length,
         is_csm=include_csm,
         n_results=n_results,
-        global_similarity=global_similarity
+        global_similarity=(similarity_type == "global")
     )
 
     results = [
@@ -74,7 +74,7 @@ async def search_chain(
         "granularity": granularity,
         "n_results": n_results,
         "include_csm": include_csm,
-        "global_similarity": global_similarity
+        "similarity_type": similarity_type
     }
 
     return templates.TemplateResponse(
@@ -86,13 +86,13 @@ async def search_chain(
 @app.post("/embedding_search/upload")
 async def upload_file(
         request: Request,
-        format: str = Form("PDB"),
+        format: str = Form("pdb"),
         file: UploadFile = File(...),
         chain_id: str = Form(None),
         search_type: str = Form(None),
         n_res: int = Form(None),
         include_csm: bool = Form(None),
-        global_similarity: bool = Form(False)
+        similarity_type: str = Form("local")
 ):
     file_content = await file.read()
     file_stream = StringIO(file_content.decode('utf-8'))
@@ -113,7 +113,7 @@ async def upload_file(
         query_length=structure_length,
         is_csm=include_csm,
         n_results=n_res,
-        global_similarity=global_similarity
+        global_similarity=(similarity_type == "global")
     )
 
     results = [
@@ -134,7 +134,7 @@ async def upload_file(
         "granularity": search_type,
         "n_results": n_res,
         "include_csm": include_csm,
-        "global_similarity": global_similarity
+        "similarity_type": similarity_type
     }
 
     return templates.TemplateResponse(

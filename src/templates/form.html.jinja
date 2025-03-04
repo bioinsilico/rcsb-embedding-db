@@ -7,7 +7,7 @@
             const searchType = document.getElementById('searchType').value ?? "chain";
             const searchBy = document.getElementById('searchBy').value ?? "chain";
             const includeCsm = document.getElementById('includeCsm').checked;
-            const similarityType = document.getElementById('similarityType').checked;
+            const similarityType = document.getElementById('similarityType').value;
             window.location.href = `/embedding_search/${pdbId}/${compId}?search_by=${searchBy}&granularity=${searchType}&n_results=${n_res}&include_csm=${includeCsm}&similarity_type=${similarityType}`;
         }
         function changeSearchBy(){

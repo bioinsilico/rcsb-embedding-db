@@ -185,7 +185,7 @@ def ready_results(results, threshold_set):
 
 
 def build_id(search_by, rcsb_id, comp_i):
-    return f"{rcsb_id}-{comp_i}" if search_by == "assembly" else f"{rcsb_id}.{comp_i}"
+    return f"{rcsb_id.upper()}-{comp_i}" if search_by == "assembly" else f"{rcsb_id.upper()}.{comp_i}"
 
 
 def get_random():

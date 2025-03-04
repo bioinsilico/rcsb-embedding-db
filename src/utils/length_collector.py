@@ -51,11 +51,8 @@ def get_instance_length(pdb_file, asym_id_list):
     return length_list
 
 
-def get_assembly_length(rcsb_id):
-    pdb = rcsb_id.split("-")[0]
-    assembly_id = rcsb_id.split("-")[1]
-    rcsb_fetch = rcsb.fetch(pdb, "bcif")
-    bcif = BinaryCIFFile.read(rcsb_fetch)
+def get_assembly_length(pdb_file, assembly_id):
+    bcif = BinaryCIFFile.read(gzip_file_to_binary_stream(pdb_file))
     for _assembly_id in list_assemblies(bcif):
         if assembly_id != _assembly_id:
             continue

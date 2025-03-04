@@ -125,9 +125,11 @@ class EmbeddingProvider:
         return self.get_by_embedding(
             collection=MilvusCollection.instance_collection,
             query_embedding=np.random.rand(self.EMBEDDING_DIM),
+            query_length=1,
             is_csm=False,
-            n_results=1
-        )[0][0].id
+            n_results=1,
+            global_similarity=False
+        )[0].id
 
     def compute_embeddings(self, structure):
         return self.embedding_model(structure)
@@ -140,4 +142,4 @@ class MilvusCollection(str, Enum):
 
 def _global_similarity_scale(query_length, target_length, score):
     scale_factor = min(query_length, target_length) / max(query_length, target_length)
-    return (scale_factor * score ** 2) ** 3
+    return (scale_factor * score ** 2) ** 1/3

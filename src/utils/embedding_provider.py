@@ -116,7 +116,7 @@ class EmbeddingProvider:
             output_fields=[self.EMBEDDING_FIELD, self.LENGTH_FIELD],
         )
         if len(result) == 0:
-            return None
+            return None, 0
         return result[0][self.EMBEDDING_FIELD], result[0][self.LENGTH_FIELD]
 
     def get_random_id(self):

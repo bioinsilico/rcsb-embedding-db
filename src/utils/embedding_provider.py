@@ -142,4 +142,4 @@ class MilvusCollection(str, Enum):
 
 def _global_similarity_scale(query_length, target_length, score):
     scale_factor = min(query_length, target_length) / max(query_length, target_length)
-    return (scale_factor * score ** 2) ** 1/3
+    return (scale_factor * score ** 2) ** (1/3)

@@ -153,7 +153,8 @@ async def form(request: Request):
         "search_by": "chain",
         "granularity": "chain",
         "n_results": 100,
-        "include_csm": False
+        "include_csm": False,
+        "similarity_type": "local"
 
     }
     return templates.TemplateResponse(

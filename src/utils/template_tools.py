@@ -23,6 +23,3 @@ def assembly_img_url(rcsb_id):
     assembly_id = rcsb_id.split("-")[1]
     return f"https://cdn.rcsb.org/images/structures/{pdb}_assembly-{assembly_id}.jpeg"
 
-
-def arches_score(y):
-    return 100 - y * 100

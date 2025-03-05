@@ -1,51 +1,51 @@
 <form>
     <script>
         function redirectToSite() {
-            const pdbId = document.getElementById('pdbId').value ?? "7PK0";
+            const pdbId = document.getElementById('pdb_id').value ?? "7PK0";
             const n_res = parseInt(document.getElementById('n_res').value ?? "100");
-            const searchType = document.getElementById('searchType').value ?? "chain";
-            const searchBy = document.getElementById('searchBy').value ?? "chain";
-            const compIdValue = document.getElementById('compId').value;
+            const searchType = document.getElementById('search_type').value ?? "chain";
+            const searchBy = document.getElementById('search_by').value ?? "chain";
+            const compIdValue = document.getElementById('comp_id').value;
             const compId = typeof compIdValue === "string" && compIdValue.length > 0 ? compIdValue : (searchBy === "chain" ? "A" : "1");
-            const includeCsm = document.getElementById('includeCsm').checked;
-            const similarityType = document.getElementById('similarityType').value;
+            const includeCsm = document.getElementById('include_csm').checked;
+            const similarityType = document.getElementById('similarity_type').value;
             window.location.href = `/embedding_search/${pdbId}/${compId}?search_by=${searchBy}&granularity=${searchType}&n_results=${n_res}&include_csm=${includeCsm}&similarity_type=${similarityType}`;
         }
         function changeSearchBy(){
-            const searchType = document.getElementById('searchBy').value;
-            document.getElementById('compId').value = "";
+            const searchType = document.getElementById('search_by').value;
+            document.getElementById('comp_id').value = "";
             if(searchType === "chain"){
                 document.getElementById('labelCompId').innerText = "Chain";
-                document.getElementById('compId').placeholder = "(A)";
+                document.getElementById('comp_id').placeholder = "(A)";
             }else {
                 document.getElementById('labelCompId').innerText = "Assembly";
-                document.getElementById('compId').placeholder = "(1)";
+                document.getElementById('comp_id').placeholder = "(1)";
             }
         }
     </script>
 
     <div style="margin-right:25px;">
-        <div style="margin-bottom: 6px;"><label for="searchBy" >Search By</label></div>
-        <div><select id="searchBy" name="searchBy" style="width: 100px;" required onchange="changeSearchBy()">
+        <div style="margin-bottom: 6px;"><label for="search_by" >Search By</label></div>
+        <div><select id="search_by" name="search_by" style="width: 100px;" required onchange="changeSearchBy()">
             <option value="chain" {% if search_by == "chain"%} selected {%  endif %}>Chain</option>
             <option value="assembly" {% if search_by == "assembly"%} selected {%  endif %}>Assembly</option>
         </select></div>
     </div>
 
     <div style="margin-right:25px;">
-        <div style="margin-bottom: 6px;"><label for="pdbId">PDB ID</label></div>
-        <div><input type="text" id="pdbId" name="pdbId" value="{{ search_id.replace("-", ".").split(".")[0] }}" style="width: 75px;" required></div>
+        <div style="margin-bottom: 6px;"><label for="pdb_id">PDB ID</label></div>
+        <div><input type="text" id="pdb_id" name="pdb_id" value="{{ search_id.replace("-", ".").split(".")[0] }}" style="width: 75px;" required></div>
     </div>
 
     <div style="margin-right:25px;">
-        <div style="margin-bottom: 6px;width: 50px" ><label for="compId" id="labelCompId">{% if search_by == "chain" %}Chain{% else %}Assembly{% endif %}</label></div>
-        <div><input type="text" id="compId" name="compId" value="{{ search_id.replace("-", ".").split(".")[1] }}" style="width: 50px;" placeholder="{% if search_by == 'chain' %}(A){% else %}(1){% endif %}" required></div>
+        <div style="margin-bottom: 6px;width: 50px" ><label for="comp_id" id="labelCompId">{% if search_by == "chain" %}Chain{% else %}Assembly{% endif %}</label></div>
+        <div><input type="text" id="comp_id" name="comp_id" value="{{ search_id.replace("-", ".").split(".")[1] }}" style="width: 50px;" placeholder="{% if search_by == 'chain' %}(A){% else %}(1){% endif %}" required></div>
     </div>
 
 
     <div style="margin-right:25px;">
-        <div style="margin-bottom: 6px;"><label for="searchType" >Return</label></div>
-        <div><select id="searchType" name="searchType" style="width: 100px;" required>
+        <div style="margin-bottom: 6px;"><label for="search_type" >Return</label></div>
+        <div><select id="search_type" name="search_type" style="width: 100px;" required>
             <option value="chain" {% if granularity == "chain"%} selected {%  endif %}>Chains</option>
             <option value="assembly" {% if granularity == "assembly"%} selected {%  endif %}>Assemblies</option>
         </select></div>
@@ -54,8 +54,8 @@
     <div style="margin-right:25px;">
         <div style="margin-bottom: 6px;">&nbsp;</div>
         <div>
-            <label for="includeCsm" >CSM</label>
-            <input type="checkbox" id="includeCsm" name="csm" value="true" {% if include_csm %} checked {%  endif %}>
+            <label for="include_csm" >CSM</label>
+            <input type="checkbox" id="include_csm" name="csm" value="true" {% if include_csm %} checked {%  endif %}>
         </div>
     </div>
 
@@ -65,8 +65,8 @@
     </div>
 
     <div style="margin-right:25px;">
-        <div style="margin-bottom: 6px;"><label for="similarityType" >Similarity Type</label></div>
-        <div><select id="similarityType" name="similarityType" style="width: 100px;" required >
+        <div style="margin-bottom: 6px;"><label for="similarity_type" >Similarity Type</label></div>
+        <div><select id="similarity_type" name="similarity_type" style="width: 100px;" required >
             <option value="local" {% if similarity_type == "local"%} selected {%  endif %}>Local</option>
             <option value="global" {% if similarity_type == "global"%} selected {%  endif %}>Global</option>
         </select></div>
@@ -77,7 +77,7 @@
         <div><button type="button" onclick="redirectToSite()">Submit</button></div>
     </div>
     <script>
-        document.getElementById('pdbId').addEventListener("keydown", (event) => {
+        document.getElementById('pdb_id').addEventListener("keydown", (event) => {
             if (event.isComposing || event.key === 'Enter') {
                 redirectToSite();
             }

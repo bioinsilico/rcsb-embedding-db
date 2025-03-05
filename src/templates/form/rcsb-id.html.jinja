@@ -11,7 +11,7 @@
         }
     }
 </script>
-<div style="margin-right:25px;">
+<div style="margin-right:30px;">
     <div style="margin-bottom: 6px;"><label for="search_by" >Search By</label></div>
     <div><select id="search_by" name="search_by" style="width: 100px;" required onchange="changeSearchBy()">
         <option value="chain" {% if search_by == "chain"%} selected {%  endif %}>Chain</option>
@@ -19,12 +19,12 @@
     </select></div>
 </div>
 
-<div style="margin-right:25px;">
+<div style="margin-right:30px;">
     <div style="margin-bottom: 6px;"><label for="pdb_id">PDB ID</label></div>
     <div><input type="text" id="pdb_id" name="pdb_id" value="{{ search_id.replace("-", ".").split(".")[0] }}" style="width: 75px;" required></div>
 </div>
 
-<div style="margin-right:25px;">
+<div style="margin-right:30px;">
     <div style="margin-bottom: 6px;width: 50px" ><label for="comp_id" id="labelCompId">{% if search_by == "chain" %}Chain{% else %}Assembly{% endif %}</label></div>
     <div><input type="text" id="comp_id" name="comp_id" value="{{ search_id.replace("-", ".").split(".")[1] }}" style="width: 50px;" placeholder="{% if search_by == 'chain' %}(A){% else %}(1){% endif %}" ></div>
 </div>

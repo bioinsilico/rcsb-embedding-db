@@ -34,13 +34,15 @@
     </script>
     <form action="/embedding_search/upload/" method="post" enctype="multipart/form-data" onsubmit="return sentForm()">
         <div style="display: block;"> {% include "form/db-rb.html.jinja" %} </div>
-        <div id="rcsb_id_input"> {% include "form/rcsb-id.html.jinja" %} </div>
-        <div id="upload_input" style="display: none;"> {% include "form/upload-file.html.jinja" %} </div>
-        <div> {% include "form/return-type.html.jinja" %}</div>
-        <div> {% include "form/include-csm.html.jinja" %} </div>
-        <div> {% include "form/n-results.html.jinja" %} </div>
-        <div> {% include "form/similarity-type.html.jinja" %} </div>
-        <div><button type="submit">Submit</button></div>
+        <div style="display: flex; align-items: center;">
+            <div id="rcsb_id_input"> {% include "form/rcsb-id.html.jinja" %} </div>
+            <div id="upload_input" style="display: none;"> {% include "form/upload-file.html.jinja" %} </div>
+            <div> {% include "form/return-type.html.jinja" %}</div>
+            <div> {% include "form/include-csm.html.jinja" %} </div>
+            <div> {% include "form/n-results.html.jinja" %} </div>
+            <div> {% include "form/similarity-type.html.jinja" %} </div>
+            <div> {% include "form/submit-button.html.jinja" %} </div>
+        </div>
     </form>
     <div id="rcsb_form" style="display: block;">
         <div class="form_switch" style="margin-bottom: 50px; margin-top: 15px; width: 150px;" onclick="switchForm('upload')" >Switch to upload form</div>

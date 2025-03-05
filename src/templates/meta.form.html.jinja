@@ -1,24 +1,51 @@
 
 {% block content %}
     <script>
-        function switchForm(){
-            let block_id = "upload_form";
-            let none_id = "pdb_form";
-            if(document.getElementById(block_id).style.display === "block"){
-                block_id = "pdb_form";
-                none_id = "upload_form";
+        function switchForm(id){
+            if(id === "rcsb"){
+                document.getElementById("upload_form").style.display = "none";
+                document.getElementById("rcsb_form").style.display = "block";
+
+                document.getElementById("upload_input").style.display = "none";
+                document.getElementById("rcsb_id_input").style.display = "inline-block";
+            }else if(id === "upload"){
+                document.getElementById("upload_form").style.display = "block";
+                document.getElementById("rcsb_form").style.display = "none";
+
+                document.getElementById("upload_input").style.display = "inline-block";
+                document.getElementById("rcsb_id_input").style.display = "none";
             }
-            document.getElementById(none_id).style.display = "none";
-            document.getElementById(block_id).style.display = "block";
+        }
+        function sentForm() {
+            if(document.getElementById("upload_form").style.display === "block")
+                return true;
+            const pdbId = document.getElementById('pdb_id')?.value ?? "7PK0";
+            const n_res = parseInt(document.getElementById('n_res')?.value ?? "100");
+            const searchType = document.getElementById('search_type')?.value ?? "chain";
+            const searchBy = document.getElementById('search_by')?.value ?? "chain";
+            const compIdValue = document.getElementById('comp_id')?.value;
+            const compId = typeof compIdValue === "string" && compIdValue.length > 0 ? compIdValue : (searchBy === "chain" ? "A" : "1");
+            const includeCsm = document.getElementById('include_csm')?.checked;
+            const similarityType = document.getElementById('similarity_type')?.value;
+            const db = document.querySelector('input[name="db"]:checked').value;
+            window.location.href = `/embedding_search/${pdbId}/${compId}?search_by=${searchBy}&granularity=${searchType}&n_results=${n_res}&include_csm=${includeCsm}&similarity_type=${similarityType}&db=${db}`;
+            return false;
         }
     </script>
-    <div id="pdb_form" style="display: block">
-        {% include "form.html.jinja" %}
-        <div class="form_switch" style="margin-bottom: 50px; margin-top: 15px; width: 150px;" onclick="switchForm()" >Switch to upload form</div>
+    <form action="/embedding_search/upload/" method="post" enctype="multipart/form-data" onsubmit="return sentForm()">
+        <div style="display: block;"> {% include "form/db-rb.html.jinja" %} </div>
+        <div id="rcsb_id_input"> {% include "form/rcsb-id.html.jinja" %} </div>
+        <div id="upload_input" style="display: none;"> {% include "form/upload-file.html.jinja" %} </div>
+        <div> {% include "form/return-type.html.jinja" %}</div>
+        <div> {% include "form/include-csm.html.jinja" %} </div>
+        <div> {% include "form/n-results.html.jinja" %} </div>
+        <div> {% include "form/similarity-type.html.jinja" %} </div>
+        <div><button type="submit">Submit</button></div>
+    </form>
+    <div id="rcsb_form" style="display: block;">
+        <div class="form_switch" style="margin-bottom: 50px; margin-top: 15px; width: 150px;" onclick="switchForm('upload')" >Switch to upload form</div>
     </div>
-    <div id="upload_form" style="display: none">
-        {% include "upload.html.jinja" %}
-        <div class="form_switch" style="margin-bottom: 50px; margin-top: 15px; width: 150px;" onclick="switchForm()" >Switch to PDB form</div>
+    <div id="upload_form" style="display: none;">
+        <div class="form_switch" style="margin-bottom: 50px; margin-top: 15px; width: 150px;" onclick="switchForm('rcsb')" >Switch to PDB form</div>
     </div>
-
 {% endblock %}

@@ -19,6 +19,7 @@ app = FastAPI()
 templates = Jinja2Templates(directory="./templates")
 
 EMBEDDING_PROVIDER = EmbeddingProvider()
+# AF_PROVIDER = EmbeddingProvider()
 
 
 @app.get("/embedding_search/{rcsb_id}/{comp_id}", response_class=HTMLResponse)
@@ -30,7 +31,8 @@ async def search_chain(
         granularity: str = "chain",
         n_results: int = 100,
         include_csm: bool = False,
-        similarity_type: str = "local"
+        similarity_type: str = "local",
+        db: str = "rcsb"
 ):
 
     rcsb_id = build_id(search_by, rcsb_id, comp_id)
@@ -53,6 +55,7 @@ async def search_chain(
         query_length=rcsb_length,
         is_csm=include_csm,
         n_results=n_results,
+        output_fields=[EMBEDDING_PROVIDER.LENGTH_FIELD],
         global_similarity=(similarity_type == "global")
     )
 
@@ -92,7 +95,8 @@ async def upload_file(
         search_type: str = Form(None),
         n_res: int = Form(None),
         include_csm: bool = Form(None),
-        similarity_type: str = Form("local")
+        similarity_type: str = Form("local"),
+        db: str = Form("rcsb")
 ):
     file_content = await file.read()
     file_stream = StringIO(file_content.decode('utf-8'))
@@ -113,6 +117,7 @@ async def upload_file(
         query_length=structure_length,
         is_csm=include_csm,
         n_results=n_res,
+        output_fields=[EMBEDDING_PROVIDER.LENGTH_FIELD],
         global_similarity=(similarity_type == "global")
     )
 
@@ -186,6 +191,8 @@ async def upload_form(request: Request):
 
 
 async def init(args):
+
+    EMBEDDING_PROVIDER.connect()
     EMBEDDING_PROVIDER.load_model(args.model_path)
     if args.embedding_path:
         EMBEDDING_PROVIDER.set_embedding_path(args.embedding_path)

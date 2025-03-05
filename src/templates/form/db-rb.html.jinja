@@ -1,0 +1,34 @@
+
+    <div style="margin-bottom: 30px;">
+        <input type="radio" id="rcsb_db" name="db" value="rcsb" checked><label for="rcsb_db">Rcsb.org</label>
+        <input style="margin-left: 25px;" type="radio" id="af_db" name="db" value="af"><label for="af_db">AlphaFold DB</label>
+    </div>
+    <script>
+        const radioButtons = document.getElementsByName('db');
+        function toggleDivVisibility() {
+            let selectedValue;
+            for (const radio of radioButtons) {
+                if (radio.checked) {
+                    selectedValue = radio.value;
+                    break;
+                }
+            }
+
+            const searchType = document.getElementById('search_type').parentElement.parentElement;
+            const similarityType = document.getElementById('similarity_type').parentElement.parentElement;
+            const includeCsm = document.getElementById('include_csm').parentElement.parentElement;
+
+            if (selectedValue === 'rcsb') {
+                searchType.style.display = 'inline-block';
+                similarityType.style.display = 'inline-block';
+                includeCsm.style.display = 'inline-block';
+            } else if (selectedValue === 'af') {
+                searchType.style.display = 'none';
+                similarityType.style.display = 'none';
+                includeCsm.style.display = 'none';
+            }
+        }
+        radioButtons.forEach(function(radio) {
+            radio.addEventListener('change', toggleDivVisibility);
+        });
+    </script>

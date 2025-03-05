@@ -2,7 +2,8 @@
 
 {% block content %}
 
-<p>Chain {{ rcsb_id }} is not available. What about this other search</p>
-{% include "meta.form.html.jinja" %}
+    <p>Chain {{ rcsb_id }} is not available. What about this other search</p>
+    <div style="margin-bottom: 25px;">{% include "bar.html.jinja" %}</div>
+    {% include "meta.form.html.jinja" %}
 
 {% endblock %}

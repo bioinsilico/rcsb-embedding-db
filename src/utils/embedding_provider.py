@@ -25,16 +25,19 @@ class EmbeddingProvider:
             self
     ):
         self.collection = {}
-        self.connect()
-        self.collections()
         self.embedding_model = None
         self.embedding_path = None
 
-    def connect(self):
+    def connect(
+            self,
+            host='localhost',
+            port=19530
+    ):
         connections.connect(
-            host=self.HOST,
-            port=self.PORT
+            host=host,
+            port=str(port)
         )
+        self.collections()
 
     def collections(self):
         self.collection[MilvusCollection.instance_collection] = Collection(
@@ -58,7 +61,8 @@ class EmbeddingProvider:
             is_csm=True,
             n_results=100,
             param=None,
-            global_similarity=False
+            global_similarity=False,
+            output_fields=None
     ):
         if param is None:
             param = {
@@ -68,7 +72,7 @@ class EmbeddingProvider:
         search_result = self.collection[collection].search(
             data=[query_embedding],
             expr=f'{self.CSM_FLAG} == False' if not is_csm else None,
-            output_fields=[self.LENGTH_FIELD],
+            output_fields=output_fields,
             anns_field=self.EMBEDDING_FIELD,
             limit=n_results if n_results > self.N_RESULTS else self.N_RESULTS,
             param=param

@@ -56,7 +56,7 @@ async def search_chain(
         is_csm=include_csm,
         n_results=n_results,
         output_fields=[EMBEDDING_PROVIDER.LENGTH_FIELD],
-        global_similarity=(similarity_type == "global")
+        global_similarity=(db == "rcsb" and similarity_type == "global")
     )
 
     results = [
@@ -118,7 +118,7 @@ async def upload_file(
         is_csm=include_csm,
         n_results=n_res,
         output_fields=[EMBEDDING_PROVIDER.LENGTH_FIELD],
-        global_similarity=(similarity_type == "global")
+        global_similarity=(db == "rcsb" and similarity_type == "global")
     )
 
     results = [

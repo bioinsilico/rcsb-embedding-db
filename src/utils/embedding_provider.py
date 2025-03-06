@@ -12,8 +12,6 @@ from utils.upload_structure import get_embedding_method
 
 class EmbeddingProvider:
 
-    HOST = 'localhost'
-    PORT = '19530'
     ID_FIELD = 'id'
     EMBEDDING_FIELD = 'embedding'
     LENGTH_FIELD = 'length'

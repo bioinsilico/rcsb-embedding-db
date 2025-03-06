@@ -9,6 +9,8 @@ from fastapi.templating import Jinja2Templates
 
 from io import StringIO
 
+from starlette.staticfiles import StaticFiles
+
 from utils.embedding_provider import EmbeddingProvider, MilvusCollection
 from utils.template_tools import img_url, alignment_url
 from utils.upload_structure import get_structure_from_stream
@@ -16,6 +18,7 @@ from utils.upload_structure import get_structure_from_stream
 parser = argparse.ArgumentParser()
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="./templates")
 
 EMBEDDING_PROVIDER = EmbeddingProvider()
@@ -192,7 +195,7 @@ async def upload_form(request: Request):
 
 async def init(args):
 
-    EMBEDDING_PROVIDER.connect()
+    EMBEDDING_PROVIDER.connect(args.rcsb_milvus_ip if args.rcsb_milvus_ip is not None else 'localhost')
     EMBEDDING_PROVIDER.load_model(args.model_path)
     if args.embedding_path:
         EMBEDDING_PROVIDER.set_embedding_path(args.embedding_path)
@@ -222,6 +225,9 @@ if __name__ == "__main__":
     parser.add_argument("--host", type=str, default="127.0.0.1", help="Host address to bind to. Defaults to 127.0.0.1.")
     parser.add_argument("--port", type=int, default=8000, help="Port to listen on. Defaults to 8000.")
     parser.add_argument("--reload", action="store_true", help="Enable auto-reload on code changes. For development purposes.")
+
+    parser.add_argument('--rcsb_milvus_ip', type=str, help="IPv4 Milvus DB for RCSB PDB embeddings")
+    parser.add_argument('--afdb_milvus_ip', type=str, help="IPv4 Milvus DB for AlphaFold DB embeddings")
     parser.add_argument('--model_path', type=str, help="Path to model", required=True)
     parser.add_argument('--embedding_path', type=str, help="Embeddings folder")
     asyncio.run(

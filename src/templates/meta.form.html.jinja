@@ -19,7 +19,8 @@
         function sentForm() {
             if(document.getElementById("upload_form").style.display === "block")
                 return true;
-            const pdbId = document.getElementById('pdb_id')?.value ?? "7PK0";
+            const pdbIdValue = document.getElementById('pdb_id')?.value ?? "7PK0";
+            const pdbId = typeof pdbIdValue === "string" && pdbIdValue.length > 0 ? pdbIdValue : " ";
             const n_res = parseInt(document.getElementById('n_res')?.value ?? "100");
             const searchType = document.getElementById('search_type')?.value ?? "chain";
             const searchBy = document.getElementById('search_by')?.value ?? "chain";

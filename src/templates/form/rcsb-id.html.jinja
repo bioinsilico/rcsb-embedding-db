@@ -2,6 +2,7 @@
     function changeSearchBy(){
         const searchType = document.getElementById('search_by').value;
         document.getElementById('comp_id').value = "";
+        document.getElementById('search_type').value = searchType;
         if(searchType === "chain"){
             document.getElementById('labelCompId').innerText = "Chain";
             document.getElementById('comp_id').placeholder = "(A)";
@@ -21,7 +22,7 @@
 
 <div style="margin-right:30px;">
     <div style="margin-bottom: 6px;"><label for="pdb_id">PDB ID</label></div>
-    <div><input type="text" id="pdb_id" name="pdb_id" value="{{ search_id.replace("-", ".").split(".")[0] }}" style="width: 75px;" required></div>
+    <div><input type="text" id="pdb_id" name="pdb_id" value="{{ search_id.replace("-", ".").split(".")[0] }}" style="width: 75px;" ></div>
 </div>
 
 <div style="margin-right:30px;">

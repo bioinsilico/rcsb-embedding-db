@@ -1,15 +1,14 @@
+import time
 
 import numpy as np
 
 from pymilvus import (
-    connections, FieldSchema, CollectionSchema, DataType, Collection, list_collections, utility
+    FieldSchema, CollectionSchema, DataType, MilvusClient
 )
 
 
 class EmbeddingLoader:
 
-    HOST = 'localhost'
-    PORT = '19530'
     ID_FIELD = 'id'
     EMBEDDING_FIELD = 'embedding'
     BATCH_SIZE = 2000
@@ -21,14 +20,18 @@ class EmbeddingLoader:
     ):
         self.collection_name = collection_name
         self.dim = dim
-        self.collection = None
+        self.client = None
         self.__connect()
         self.__set_collection()
 
-    def __connect(self):
-        connections.connect(
-            host=self.HOST,
-            port=self.PORT
+    def __connect(
+            self,
+            host='localhost',
+            port='19530'
+    ):
+        self.client = MilvusClient(
+            uri=f"http://{host}:{port}",
+            db_name="default"
         )
 
     def __set_collection(self):
@@ -50,11 +53,14 @@ class EmbeddingLoader:
             description="Collection storing embeddings with cosine distance."
         )
 
-        self.collection = Collection(name=self.collection_name, schema=collection_schema)
+        self.client.create_collection(
+            collection_name=self.collection_name,
+            collection_schema=collection_schema
+        )
 
     def create_embedding_collection(self):
-        if self.collection_name in list(list_collections()):
-            utility.drop_collection(self.collection_name)
+        if self.collection_name in self.client.list_collections():
+            self.client.drop_collection(self.collection_name)
         self.__set_collection()
 
     def insert_df(self, df):
@@ -72,14 +78,28 @@ class EmbeddingLoader:
             ids = batch_df[self.ID_FIELD].tolist()
             embeddings = [(embedding/np.linalg.norm(embedding)).astype(np.float16) for embedding in batch_df[self.EMBEDDING_FIELD]]
 
-            entities = [
-                ids,         # List of identifiers
-                embeddings   # List of embeddings
-            ]
-            self.collection.insert(entities)
+            data = [{
+                self.ID_FIELD: _id,
+                self.EMBEDDING_FIELD: embedding
+            } for _id, embedding in zip(ids, embeddings)]
+            self.client.insert(
+                collection_name=self.collection_name,
+                data=data
+            )
 
     def flush(self):
-        self.collection.flush()
+        self.client.flush(
+            collection_name=self.collection_name
+        )
+
+    def compact_collection(self):
+        print(f"Compacting collection")
+        compaction_id = self.client.compact(
+            collection_name=self.collection_name
+        )
+        while self.client.get_compaction_state(compaction_id) != "Completed":
+            time.sleep(300)
+        print(f"Collection compacted")
 
     def index_collection(self, index_params=None):
         print(f"Indexing collection")
@@ -90,12 +110,17 @@ class EmbeddingLoader:
                 "index_type": "DISKANN",  # You can choose other index types as needed
                 "params": {}
             }
-        self.collection.create_index(
+        self.client.create_index(
+            collection_name=self.collection_name,
             field_name=self.EMBEDDING_FIELD,
             index_params=index_params
         )
         print("Index created with cosine distance metric.")
 
     def load_collection(self):
-        self.collection.load()
+        print("Loadig collection")
+        self.client.load_collection(
+            collection_name=self.collection_name,
+            replica_number=1
+        )
         print("Collection loaded to memory.")

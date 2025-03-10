@@ -1,6 +1,7 @@
 import argparse
 import asyncio
 
+import numpy as np
 import uvicorn
 
 from fastapi import FastAPI, Request, UploadFile, File, Form
@@ -12,7 +13,7 @@ from io import StringIO
 from starlette.staticfiles import StaticFiles
 
 from utils.embedding_provider import EmbeddingProvider, MilvusCollection
-from utils.template_tools import img_url, alignment_url
+from utils.template_tools import img_url, alignment_url, alignment_callback
 from utils.upload_structure import get_structure_from_stream
 
 parser = argparse.ArgumentParser()
@@ -22,7 +23,6 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="./templates")
 
 EMBEDDING_PROVIDER = EmbeddingProvider()
-# AF_PROVIDER = EmbeddingProvider()
 
 
 @app.get("/embedding_search/{rcsb_id}/{comp_id}", response_class=HTMLResponse)
@@ -39,9 +39,9 @@ async def search_chain(
 ):
 
     rcsb_id = build_id(search_by, rcsb_id, comp_id)
-    collection_name = MilvusCollection.assembly_collection if search_by == "assembly" else MilvusCollection.instance_collection
+    query_collection = get_query_collection(search_by)
     rcsb_embedding, rcsb_length = EMBEDDING_PROVIDER.get_by_id(
-        collection=collection_name,
+        collection=query_collection,
         query_id=rcsb_id
     )
     if not rcsb_embedding:
@@ -50,10 +50,12 @@ async def search_chain(
         return templates.TemplateResponse(
             name="null-instance.html.jinja", context=context
         )
+    target_collection = get_target_collection(db, granularity)
+    if query_collection != MilvusCollection.af_collection and target_collection == MilvusCollection.af_collection:
+        rcsb_embedding = norm_float16(rcsb_embedding)
 
-    collection_name = MilvusCollection.assembly_collection if granularity == "assembly" else MilvusCollection.instance_collection
     search_result = EMBEDDING_PROVIDER.get_by_embedding(
-        collection=collection_name,
+        collection=target_collection,
         query_embedding=rcsb_embedding,
         query_length=rcsb_length,
         is_csm=include_csm,
@@ -65,14 +67,16 @@ async def search_chain(
     results = [
         {
             "index": idx,
-            "instance_id": r.id,
-            "alignment_url": alignment_url(rcsb_id, r.id),
-            "img_url": img_url(r.id),
-            "score": round(r.distance, 2)
+            "instance_id": r['id'],
+            "alignment_url": alignment_url(rcsb_id, r['id']),
+            "alignment_callback": alignment_callback(query_collection, rcsb_id, target_collection, r['id']),
+            "img_url": img_url(r['id']) if db == "rcsb" else None,
+            "score": round(r['distance'], 2)
         } for idx, r in enumerate(search_result)
     ]
 
     context = {
+        "db": db,
         "search_by": search_by,
         "search_id": rcsb_id,
         "results": results,
@@ -135,6 +139,7 @@ async def upload_file(
     ]
 
     context = {
+        "db": db,
         "request": request,
         "search_id": "",
         "results": results,
@@ -156,6 +161,7 @@ async def upload_file(
 async def form(request: Request):
     random_id = EMBEDDING_PROVIDER.get_random_id()
     context = {
+        "db": "rcsb",
         "search_id": random_id,
         "request": request,
         "search_by": "chain",
@@ -174,6 +180,7 @@ async def form(request: Request):
 async def help_form(request: Request):
     random_id = EMBEDDING_PROVIDER.get_random_id()
     context = {
+        "db": "rcsb",
         "search_id": random_id,
         "request": request,
         "search_by": "chain",
@@ -195,7 +202,10 @@ async def upload_form(request: Request):
 
 async def init(args):
 
-    EMBEDDING_PROVIDER.connect(args.rcsb_milvus_ip if args.rcsb_milvus_ip is not None else 'localhost')
+    EMBEDDING_PROVIDER.connect(
+        args.rcsb_milvus_ip,
+        args.afdb_milvus_ip
+    )
     EMBEDDING_PROVIDER.load_model(args.model_path)
     if args.embedding_path:
         EMBEDDING_PROVIDER.set_embedding_path(args.embedding_path)
@@ -213,11 +223,36 @@ def ready_results(results, threshold_set):
 
 
 def build_id(search_by, rcsb_id, comp_i):
+    if search_by == "uniprot":
+        return rcsb_id.upper() if "AF-" in rcsb_id else f"AF-{rcsb_id.upper()}-F1"
     return f"{rcsb_id.upper()}-{comp_i}" if search_by == "assembly" else f"{rcsb_id.upper()}.{comp_i}"
 
 
 def get_random():
     return EMBEDDING_PROVIDER.get_random_id()[0][0].id
+
+
+def get_query_collection(search_by):
+    if search_by == "assembly":
+        return MilvusCollection.assembly_collection
+    if search_by == "chain":
+        return MilvusCollection.instance_collection
+    if search_by == "uniprot":
+        return MilvusCollection.af_collection
+
+
+def get_target_collection(db, granularity):
+    if db == "af":
+        return MilvusCollection.af_collection
+    if granularity == "assembly":
+        return MilvusCollection.assembly_collection
+    if granularity == "chain":
+        return MilvusCollection.instance_collection
+
+
+def norm_float16(embedding):
+    embedding = np.array(embedding)
+    return (embedding/np.linalg.norm(embedding)).astype(np.float16)
 
 
 if __name__ == "__main__":
@@ -226,8 +261,8 @@ if __name__ == "__main__":
     parser.add_argument("--port", type=int, default=8000, help="Port to listen on. Defaults to 8000.")
     parser.add_argument("--reload", action="store_true", help="Enable auto-reload on code changes. For development purposes.")
 
-    parser.add_argument('--rcsb_milvus_ip', type=str, help="IPv4 Milvus DB for RCSB PDB embeddings")
-    parser.add_argument('--afdb_milvus_ip', type=str, help="IPv4 Milvus DB for AlphaFold DB embeddings")
+    parser.add_argument('--rcsb_milvus_ip', type=str, help="IPv4 Milvus DB for RCSB PDB embeddings", required=True)
+    parser.add_argument('--afdb_milvus_ip', type=str, help="IPv4 Milvus DB for AlphaFold DB embeddings", required=True)
     parser.add_argument('--model_path', type=str, help="Path to model", required=True)
     parser.add_argument('--embedding_path', type=str, help="Embeddings folder")
     asyncio.run(

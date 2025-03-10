@@ -1,7 +1,7 @@
 
     <div style="margin-bottom: 30px;">
-        <input type="radio" id="rcsb_db" name="db" value="rcsb" checked><label for="rcsb_db">RCSB PDB</label>
-        <input style="margin-left: 30px;" type="radio" id="af_db" name="db" value="af"><label for="af_db">AlphaFold DB</label>
+        <input type="radio" id="rcsb_db" name="db" value="rcsb" {% if db == "rcsb"%} checked {%  endif %}><label for="rcsb_db">RCSB PDB</label>
+        <input style="margin-left: 30px;" type="radio" id="af_db" name="db" value="af" {% if db == "af"%} checked {%  endif %}><label for="af_db">AlphaFold DB</label>
     </div>
     <script>
         const radioButtons = document.getElementsByName('db');
@@ -30,5 +30,8 @@
         }
         radioButtons.forEach(function(radio) {
             radio.addEventListener('change', toggleDivVisibility);
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleDivVisibility();
         });
     </script>

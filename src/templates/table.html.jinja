@@ -1,12 +1,71 @@
 <div style="margin-top: 15px;">
+    <script>
+        function alignment_callback(query_ref, query_id, target_ref, target_id){
+            console.log(query_ref, query_id, target_id);
+            let structure_query = {};
+            if(query_ref === "pdb"){
+                structure_query = {
+                    "entry_id": query_id.split(".")[0],
+                    "selection": {
+                        "asym_id": query_id.split(".")[1],
+                    }
+                }
+            }else {
+                structure_query = {
+                    "url": `https://alphafold.ebi.ac.uk/files/${query_id}-model_v4.cif`,
+                    "format":"mmcif",
+                    "selection":{
+                        "asym_id":"A"
+                    }
+                }
+            }
+            let target_query = {};
+            if(target_ref === "pdb"){
+                target_query = {
+                    "entry_id": target_id.split(".")[0],
+                    "selection": {
+                        "asym_id": target_id.split(".")[1],
+                    }
+                }
+            }else {
+                target_query = {
+                    "url": `https://alphafold.ebi.ac.uk/files/${target_id}-model_v4.cif`,
+                    "format":"mmcif",
+                    "selection":{
+                        "asym_id":"A"
+                    }
+                }
+            }
+            const query = {
+                "query": {
+                    "options":{
+                        "return_sequence_data": true
+                    },
+                    "context":{
+                        "mode":"pairwise",
+                        "method":{
+                            "name":"tm-align"
+                        },
+                        "structures":[
+                            structure_query,
+                            target_query
+                        ]
+                    }
+                }
+            }
+            window.open("https://www.rcsb.org/alignment?request-body="+encodeURIComponent(JSON.stringify(query)), "_blank");
+        }
+    </script>
     <table>
         {% for item in results %}
         <TR>
             <TD ><span>{{item.index}}</span></TD>
-            <TD ><img width="100" src="{{ item.img_url }}" alt="{{ item.instance_id }}"></TD>
+            {% if item.img_url %} <TD ><img width="100" src="{{ item.img_url }}" alt="{{ item.instance_id }}"></TD> {% endif %}
             <TD >
                 {% if item.alignment_url %}
                     <a href="{{ item.alignment_url }}" target="_blank">{{item.instance_id}}</a>
+                {% elif item.alignment_callback %}
+                    <a onclick="{{ item.alignment_callback }}" >{{item.instance_id}}</a>
                 {% else %}
                     <span> {{item.instance_id}} </span>
                 {% endif %}

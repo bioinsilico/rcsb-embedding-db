@@ -1,11 +1,11 @@
 import os
+import struct
 from enum import Enum
 import random
 
 import numpy as np
-from pymilvus import (
-    connections, Collection
-)
+from pymilvus import MilvusClient
+
 
 from utils.upload_structure import get_embedding_method
 
@@ -22,27 +22,24 @@ class EmbeddingProvider:
     def __init__(
             self
     ):
+        self.af_client = None
+        self.rcsb_client = None
         self.collection = {}
         self.embedding_model = None
         self.embedding_path = None
 
     def connect(
             self,
-            host='localhost',
-            port=19530
+            rcsb_host,
+            afdb_host
     ):
-        connections.connect(
-            host=host,
-            port=str(port)
+        self.rcsb_client = MilvusClient(
+            uri=f"http://{rcsb_host}:19530",
+            db_name="default"
         )
-        self.collections()
-
-    def collections(self):
-        self.collection[MilvusCollection.instance_collection] = Collection(
-            name=MilvusCollection.instance_collection
-        )
-        self.collection[MilvusCollection.assembly_collection] = Collection(
-            name=MilvusCollection.assembly_collection
+        self.af_client = MilvusClient(
+            uri=f"http://{afdb_host}:19530",
+            db_name="default"
         )
 
     def load_model(self, model_path):
@@ -67,21 +64,33 @@ class EmbeddingProvider:
                 "metric_type": "COSINE",
                 "params": {}
             }
-        search_result = self.collection[collection].search(
+        limit = n_results if n_results > self.N_RESULTS else self.N_RESULTS
+        expr = f'{self.CSM_FLAG} == False' if not is_csm else None
+        client = self.rcsb_client
+        if collection == MilvusCollection.af_collection:
+            expr = None
+            output_fields = None
+            limit = 10
+            param = {
+                "search_list": limit
+            }
+            client = self.af_client
+        search_result = client.search(
+            collection_name=collection,
             data=[query_embedding],
-            expr=f'{self.CSM_FLAG} == False' if not is_csm else None,
+            filter=expr,
             output_fields=output_fields,
             anns_field=self.EMBEDDING_FIELD,
-            limit=n_results if n_results > self.N_RESULTS else self.N_RESULTS,
-            param=param
+            limit=limit,
+            search_params=param
         )[0]
 
         if global_similarity:
             for r in search_result:
-                r.distance = _global_similarity_scale(query_length, r.length, r.distance)
+                r['distance'] = _global_similarity_scale(query_length, r['entity']['length'], r['distance'])
             search_result = sorted(
                 search_result,
-                key=lambda r: r.distance,
+                key=lambda r: r['distance'],
                 reverse=True
             )
 
@@ -113,12 +122,17 @@ class EmbeddingProvider:
             collection,
             query_id
     ):
-        result = self.collection[collection].query(
-            expr=f'{self.ID_FIELD} == "{query_id}"',
-            output_fields=[self.EMBEDDING_FIELD, self.LENGTH_FIELD],
+        client = self.af_client if collection == MilvusCollection.af_collection else self.rcsb_client
+        output_fields = [self.EMBEDDING_FIELD] if collection == MilvusCollection.af_collection else [self.EMBEDDING_FIELD, self.LENGTH_FIELD]
+        result = client.query(
+            collection_name=collection,
+            filter=f'{self.ID_FIELD} == "{query_id}"',
+            output_fields=output_fields
         )
         if len(result) == 0:
             return None, 0
+        if collection == MilvusCollection.af_collection:
+            return binary_to_float16_list(result[0][self.EMBEDDING_FIELD][0]), 0.
         return result[0][self.EMBEDDING_FIELD], result[0][self.LENGTH_FIELD]
 
     def get_random_id(self):
@@ -131,7 +145,7 @@ class EmbeddingProvider:
             is_csm=False,
             n_results=1,
             global_similarity=False
-        )[0].id
+        )[0]['id']
 
     def compute_embeddings(self, structure):
         return self.embedding_model(structure)
@@ -140,8 +154,31 @@ class EmbeddingProvider:
 class MilvusCollection(str, Enum):
     instance_collection = "instance_embeddings"
     assembly_collection = "assembly_embeddings"
+    af_collection = "af_embeddings"
 
 
 def _global_similarity_scale(query_length, target_length, score):
     scale_factor = min(query_length, target_length) / max(query_length, target_length)
     return (scale_factor * score ** 3) ** (1/4)
+
+
+def binary_to_float16_list(binary_data):
+    """
+    Converts binary data to a list of float16 values.
+
+    Args:
+        binary_data: A bytes-like object containing binary data.
+
+    Returns:
+        A list of float16 values.
+    """
+    float16_list = []
+    for i in range(0, len(binary_data), 2):  # Step size of 2 for float16 (2 bytes)
+        try:
+            # Unpack the binary data as a short (2 bytes) and interpret as float16
+            float16_value = np.frombuffer(struct.pack('H', struct.unpack('<H', binary_data[i:i+2])[0]), dtype=np.float16)[0]
+            float16_list.append(float16_value)
+        except struct.error:
+            print(f"Warning: Not enough data to unpack at index {i}. Skipping.")
+            break
+    return float16_list

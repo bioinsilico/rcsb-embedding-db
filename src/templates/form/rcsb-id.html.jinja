@@ -1,14 +1,24 @@
 <script>
     function changeSearchBy(){
+        const compId = document.getElementById('comp_id').parentElement.parentElement;
         const searchType = document.getElementById('search_by').value;
         document.getElementById('comp_id').value = "";
-        document.getElementById('search_type').value = searchType;
         if(searchType === "chain"){
+            compId.style.display = 'inline-block';
             document.getElementById('labelCompId').innerText = "Chain";
+            document.getElementById('labelPdbId').innerText = "PDB ID"
             document.getElementById('comp_id').placeholder = "(A)";
-        }else {
+            document.getElementById('search_type').value = searchType;
+        }else if(searchType === "assembly"){
+            compId.style.display = 'inline-block';
             document.getElementById('labelCompId').innerText = "Assembly";
+            document.getElementById('labelPdbId').innerText = "PDB ID"
             document.getElementById('comp_id').placeholder = "(1)";
+            document.getElementById('search_type').value = searchType;
+        }else if(searchType === "uniprot"){
+            compId.style.display = 'none';
+            document.getElementById('labelPdbId').innerText = "ACC"
+            document.getElementById('search_type').value = "chain";
         }
     }
 </script>
@@ -17,15 +27,26 @@
     <div><select id="search_by" name="search_by" style="width: 100px;" required onchange="changeSearchBy()">
         <option value="chain" {% if search_by == "chain"%} selected {%  endif %}>Chain</option>
         <option value="assembly" {% if search_by == "assembly"%} selected {%  endif %}>Assembly</option>
+        <option value="uniprot" {% if search_by == "uniprot"%} selected {%  endif %}>UniProt</option>
     </select></div>
 </div>
 
-<div style="margin-right:30px;">
-    <div style="margin-bottom: 6px;"><label for="pdb_id">PDB ID</label></div>
-    <div><input type="text" id="pdb_id" name="pdb_id" value="{{ search_id.replace("-", ".").split(".")[0] }}" style="width: 75px;" ></div>
+<div style="margin-right:30px;" >
+    <div style="margin-bottom: 6px;">
+        {% if search_by == "uniprot" %}
+            <label for="pdb_id" id="labelPdbId">ACC</label>
+        {% else %}
+            <label for="pdb_id" id="labelPdbId">PDB ID</label>
+        {% endif %}
+    </div>
+    {% if search_by == "uniprot" %}
+        <div><input type="text" id="pdb_id" name="pdb_id" value="{{ search_id }}" style="width: 75px;" ></div>
+    {% else %}
+        <div><input type="text" id="pdb_id" name="pdb_id" value="{{ search_id.replace("-", ".").split(".")[0] }}" style="width: 75px;" ></div>
+    {% endif %}
 </div>
 
-<div style="margin-right:30px;">
+<div style="margin-right:30px; {% if search_by == "uniprot" %} display: none; {% else %} display: inline-block; {% endif %}">
     <div style="margin-bottom: 6px;width: 50px" ><label for="comp_id" id="labelCompId">{% if search_by == "chain" %}Chain{% else %}Assembly{% endif %}</label></div>
     <div><input type="text" id="comp_id" name="comp_id" value="{{ search_id.replace("-", ".").split(".")[1] }}" style="width: 50px;" placeholder="{% if search_by == 'chain' %}(A){% else %}(1){% endif %}" ></div>
 </div>

@@ -60,6 +60,7 @@ class EmbeddingLoader:
 
     def create_embedding_collection(self):
         if self.collection_name in self.client.list_collections():
+            print(f"Dropping existing collection {self.collection_name}")
             self.client.drop_collection(self.collection_name)
         self.__set_collection()
 

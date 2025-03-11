@@ -37,6 +37,7 @@ def main(af_embedding_folder, index_only, load_collection):
                 pbar.update(1)
 
     embedding_loader.flush()
+    embedding_loader.compact()
     embedding_loader.index_collection()
     if load_collection:
         embedding_loader.load_collection()

@@ -77,6 +77,12 @@ class EmbeddingLoader:
             ]
             self.collection.insert(entities)
 
+    def compact(self):
+        self.collection.compact()
+        print(self.collection.get_compaction_state())
+        self.collection.wait_for_compaction_completed()
+        print(f"Compaction {self.collection_name} completed")
+
     def flush(self):
         self.collection.flush()
 

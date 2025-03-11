@@ -11,7 +11,7 @@ import concurrent.futures
 dim = 1536
 
 
-def main(af_embedding_folder, index_only):
+def main(af_embedding_folder, index_only, load_collection):
 
     embedding_loader = EmbeddingLoader(
         'af_embeddings',
@@ -38,12 +38,14 @@ def main(af_embedding_folder, index_only):
 
     embedding_loader.flush()
     embedding_loader.index_collection()
-    embedding_loader.load_collection()
+    if load_collection:
+        embedding_loader.load_collection()
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run Embedding Search.")
     parser.add_argument('--af_embedding_folder', type=str, help="Embeddings folder", required=True)
     parser.add_argument('--index_only', action='store_true')
+    parser.add_argument('--load_collection', action='store_true')
     args = parser.parse_args()
-    main(args.af_embedding_folder, args.index_only)
+    main(args.af_embedding_folder, args.index_only, args.load_collection)

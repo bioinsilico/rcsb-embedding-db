@@ -55,7 +55,8 @@ class EmbeddingLoader:
 
         self.client.create_collection(
             collection_name=self.collection_name,
-            schema=collection_schema
+            collection_schema=collection_schema,
+            dimension=self.dim
         )
 
     def create_embedding_collection(self):

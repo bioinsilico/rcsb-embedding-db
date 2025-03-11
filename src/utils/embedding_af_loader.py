@@ -89,6 +89,7 @@ class EmbeddingLoader:
             )
 
     def flush(self):
+        print(f"Collection flush {self.collection_name}")
         self.client.flush(
             collection_name=self.collection_name
         )
@@ -99,7 +100,7 @@ class EmbeddingLoader:
             collection_name=self.collection_name
         )
         while self.client.get_compaction_state(compaction_id) != "Completed":
-            print(f"Waiting for compaction to complete... f{self.client.get_compaction_state(compaction_id)}")
+            print(f"Waiting for compaction to complete... {self.client.get_compaction_state(compaction_id)}")
             time.sleep(300)
         print(f"Collection compacted")
 

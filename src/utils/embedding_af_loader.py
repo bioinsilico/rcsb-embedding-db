@@ -22,6 +22,7 @@ class EmbeddingLoader:
         self.dim = dim
         self.client = None
         self.__connect()
+        self.__set_collection()
 
     def __connect(
             self,
@@ -61,7 +62,6 @@ class EmbeddingLoader:
         if self.collection_name in self.client.list_collections():
             print(f"Dropping existing collection {self.collection_name}")
             self.client.drop_collection(self.collection_name)
-        print(f"Creating collection {self.collection_name}")
         self.__set_collection()
 
     def insert_df(self, df):

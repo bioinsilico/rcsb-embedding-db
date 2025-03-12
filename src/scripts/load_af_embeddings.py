@@ -11,7 +11,7 @@ import concurrent.futures
 dim = 1536
 
 
-def main(af_embedding_folder, index_only, load_collection):
+def main(af_embedding_folder, index_only, index_collection, load_collection):
 
     embedding_loader = EmbeddingLoader(
         'af_embeddings',
@@ -20,7 +20,8 @@ def main(af_embedding_folder, index_only, load_collection):
 
     if index_only:
         embedding_loader.index_collection()
-        embedding_loader.load_collection()
+        if load_collection:
+            embedding_loader.load_collection()
         return
 
     def __insert_file(file):
@@ -37,7 +38,8 @@ def main(af_embedding_folder, index_only, load_collection):
                 pbar.update(1)
 
     embedding_loader.flush()
-    embedding_loader.index_collection()
+    if index_collection:
+        embedding_loader.index_collection()
     if load_collection:
         embedding_loader.load_collection()
 
@@ -46,6 +48,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run Embedding Search.")
     parser.add_argument('--af_embedding_folder', type=str, help="Embeddings folder", required=True)
     parser.add_argument('--index_only', action='store_true')
+    parser.add_argument('--index_collection', action='store_true')
     parser.add_argument('--load_collection', action='store_true')
     args = parser.parse_args()
-    main(args.af_embedding_folder, args.index_only, args.load_collection)
+    main(args.af_embedding_folder, args.index_only, args.index_collection, args.load_collection)

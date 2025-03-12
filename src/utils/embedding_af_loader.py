@@ -23,6 +23,7 @@ class EmbeddingLoader:
         self.dim = dim
         self.collection = None
         self.__connect()
+        self.__set_collection()
 
     def __connect(self):
         connections.connect(

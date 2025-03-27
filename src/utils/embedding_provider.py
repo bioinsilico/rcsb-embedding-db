@@ -70,7 +70,7 @@ class EmbeddingProvider:
         if collection == MilvusCollection.af_collection:
             expr = None
             output_fields = None
-            limit = 10
+            limit = n_results
             param = {
                 "search_list": limit
             }
@@ -181,4 +181,4 @@ def binary_to_float16_list(binary_data):
         except struct.error:
             print(f"Warning: Not enough data to unpack at index {i}. Skipping.")
             break
-    return float16_list
+    return np.array(float16_list).astype(np.float16)

@@ -31,18 +31,26 @@ def confidence_interval(data, confidence=0.95):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('--rcsb_host', type=int, required=True)
+    parser.add_argument('--afdb_host', type=int, required=True)
     parser.add_argument('--collection_name', type=int, required=True)
     parser.add_argument('--embedding_path', type=int, required=True)
     parser.add_argument('--n_queries', type=int, required=True)
     parser.add_argument('--n_results', type=int, required=True)
     args = parser.parse_args()
 
+    rcsb_host = args.rcsb_host
+    afdb_host = args.afdb_host
     collection_name = args.collection_name
     embedding_path = args.embedding_path
     n_queries = args.n_queries
     n_results = args.n_results
 
-    embedding_provider = EmbeddingProvider(collection_name)
+    embedding_provider = EmbeddingProvider()
+    embedding_provider.connect(
+        rcsb_host,
+        afdb_host
+    )
 
     embedding_files = list(os.listdir(embedding_path))
     times = []
@@ -50,7 +58,10 @@ if __name__ == '__main__':
         random_queries = []
         for f in random.sample(embedding_files, n_queries):
             random_id = ".".join(f.split(".")[0:2])
-            rcsb_embedding = embedding_provider.get_by_id(random_id)
+            rcsb_embedding = embedding_provider.get_by_id(
+                collection_name,
+                random_id
+            )
             random_queries.append(rcsb_embedding)
 
         start_time = time.time()

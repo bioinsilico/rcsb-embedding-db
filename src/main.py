@@ -44,7 +44,7 @@ async def search_chain(
         collection=query_collection,
         query_id=rcsb_id
     )
-    if not rcsb_embedding:
+    if rcsb_embedding is None:
         random_id = EMBEDDING_PROVIDER.get_random_id()
         context = {"rcsb_id": rcsb_id, "search_id": random_id, "request": request, "search_by": "chain"}
         return templates.TemplateResponse(

@@ -31,18 +31,26 @@ def bytes_to_float16_list(byte_sequence):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('--rcsb_host', type=int, required=True)
+    parser.add_argument('--afdb_host', type=int, required=True)
     parser.add_argument('--collection_name', type=int, required=True)
     parser.add_argument('--up_ids_list_file', type=int, required=True)
     parser.add_argument('--n_queries', type=int, required=True)
     parser.add_argument('--n_results', type=int, required=True)
     args = parser.parse_args()
 
+    rcsb_host = args.rcsb_host
+    afdb_host = args.afdb_host
     collection_name = args.collection_name
     up_ids_list_file = args.up_ids_list_file
     n_queries = args.n_queries
     n_results = args.n_results
 
-    embedding_provider = EmbeddingProvider(collection_name)
+    embedding_provider = EmbeddingProvider()
+    embedding_provider.connect(
+        rcsb_host,
+        afdb_host
+    )
 
     embedding_files = [f"AF_AF{r.strip()}F1" for r in open(up_ids_list_file)]
     random_queries = []

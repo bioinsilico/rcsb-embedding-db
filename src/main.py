@@ -258,6 +258,8 @@ def format_np_embedding(query_collection, target_collection, embedding):
         embedding = embedding/np.linalg.norm(embedding)
     if target_collection == MilvusCollection.af_collection:
         embedding = embedding.astype(np.float16)
+    if query_collection == MilvusCollection.af_collection and target_collection != MilvusCollection.af_collection:
+        embedding = embedding.astype(np.float32)
     return embedding
 
 

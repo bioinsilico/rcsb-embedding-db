@@ -75,6 +75,7 @@ class EmbeddingProvider:
                 "search_list": limit
             }
             client = self.af_client
+
         search_result = client.search(
             collection_name=collection,
             data=[query_embedding],
@@ -132,8 +133,8 @@ class EmbeddingProvider:
         if len(result) == 0:
             return None, 0
         if collection == MilvusCollection.af_collection:
-            return binary_to_float16_list(result[0][self.EMBEDDING_FIELD][0]), 0.
-        return result[0][self.EMBEDDING_FIELD], result[0][self.LENGTH_FIELD]
+            return binary_to_float_np_array(result[0][self.EMBEDDING_FIELD][0]), 0.
+        return np.array(result[0][self.EMBEDDING_FIELD]), result[0][self.LENGTH_FIELD]
 
     def get_random_id(self):
         if self.embedding_path:
@@ -162,7 +163,7 @@ def _global_similarity_scale(query_length, target_length, score):
     return (scale_factor * score ** 3) ** (1/4)
 
 
-def binary_to_float16_list(binary_data):
+def binary_to_float_np_array(binary_data):
     """
     Converts binary data to a list of float16 values.
 
@@ -181,4 +182,4 @@ def binary_to_float16_list(binary_data):
         except struct.error:
             print(f"Warning: Not enough data to unpack at index {i}. Skipping.")
             break
-    return np.array(float16_list).astype(np.float16)
+    return np.array(float16_list)

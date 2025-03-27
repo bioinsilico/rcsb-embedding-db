@@ -44,15 +44,16 @@ async def search_chain(
         collection=query_collection,
         query_id=rcsb_id
     )
+
     if rcsb_embedding is None:
         random_id = EMBEDDING_PROVIDER.get_random_id()
         context = {"rcsb_id": rcsb_id, "search_id": random_id, "request": request, "search_by": "chain"}
         return templates.TemplateResponse(
             name="null-instance.html.jinja", context=context
         )
+
     target_collection = get_target_collection(db, granularity)
-    if query_collection != MilvusCollection.af_collection and target_collection == MilvusCollection.af_collection:
-        rcsb_embedding = norm_float16(rcsb_embedding)
+    rcsb_embedding = format_np_embedding(query_collection, target_collection, rcsb_embedding)
 
     search_result = EMBEDDING_PROVIDER.get_by_embedding(
         collection=target_collection,
@@ -117,9 +118,11 @@ async def upload_file(
 
     structure_embedding, structure_length = EMBEDDING_PROVIDER.compute_embeddings(structure)
 
-    collection_name = MilvusCollection.assembly_collection if search_type == "assembly" else MilvusCollection.instance_collection
+    target_collection = get_target_collection(db, search_type)
+    structure_embedding = format_np_embedding("file", target_collection, structure_embedding)
+
     search_result = EMBEDDING_PROVIDER.get_by_embedding(
-        collection=collection_name,
+        collection=target_collection,
         query_embedding=structure_embedding,
         query_length=structure_length,
         is_csm=include_csm,
@@ -131,10 +134,10 @@ async def upload_file(
     results = [
         {
             "index": idx,
-            "instance_id": r.id,
+            "instance_id": r['id'],
             "alignment_url": None,
-            "img_url": img_url(r.id),
-            "score": round(r.distance, 2)
+            "img_url": img_url(r['id']) if db == "rcsb" else None,
+            "score": round(r['distance'], 2)
         } for idx, r in enumerate(search_result)
     ]
 
@@ -250,9 +253,12 @@ def get_target_collection(db, granularity):
         return MilvusCollection.instance_collection
 
 
-def norm_float16(embedding):
-    embedding = np.array(embedding)
-    return (embedding/np.linalg.norm(embedding)).astype(np.float16)
+def format_np_embedding(query_collection, target_collection, embedding):
+    if query_collection != MilvusCollection.af_collection and target_collection == MilvusCollection.af_collection:
+        embedding = embedding/np.linalg.norm(embedding)
+    if target_collection == MilvusCollection.af_collection:
+        embedding = embedding.astype(np.float16)
+    return embedding
 
 
 if __name__ == "__main__":

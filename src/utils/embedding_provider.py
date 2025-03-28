@@ -100,22 +100,31 @@ class EmbeddingProvider:
     def get_by_multi_embedding(
             self,
             collection,
-            query_embedding,
-            is_csm=True,
+            query_embedding_list,
             n_results=100,
             param=None
     ):
+        client = self.rcsb_client
         if param is None:
             param = {
                 "metric_type": "COSINE",
                 "params": {}
             }
-        return self.collection[collection].search(
-            data=query_embedding,
-            expr=f'{self.CSM_FLAG} == False' if not is_csm else None,
+        if collection == MilvusCollection.af_collection:
+            limit = n_results
+            param = {
+                "search_list": limit
+            }
+            client = self.af_client
+
+        return client.search(
+            collection_name=collection,
+            data=query_embedding_list,
+            filter=None,
+            output_fields=None,
             anns_field=self.EMBEDDING_FIELD,
             limit=n_results,
-            param=param
+            search_params=param
         )
 
     def get_by_id(

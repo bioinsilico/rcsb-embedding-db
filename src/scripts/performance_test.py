@@ -6,7 +6,7 @@ import time
 import numpy as np
 from scipy import stats
 
-from utils.embedding_provider import EmbeddingProvider
+from utils.embedding_provider import EmbeddingProvider, MilvusCollection
 
 
 def confidence_interval(data, confidence=0.95):
@@ -55,24 +55,30 @@ if __name__ == '__main__':
     embedding_files = list(os.listdir(embedding_path))
     times = []
     for _ in range(10):
-        random_queries = []
-        for f in random.sample(embedding_files, n_queries):
-            random_id = ".".join(f.split(".")[0:2])
-            rcsb_embedding = embedding_provider.get_by_id(
-                collection_name,
-                random_id
-            )
-            random_queries.append(rcsb_embedding)
-
+        random_id = random.sample(embedding_files, 1)[0]
+        random_id = ".".join(random_id.split(".")[0:2])
+        rcsb_embedding = embedding_provider.get_by_id(
+            MilvusCollection.instance_collection,
+            random_id
+        )
         start_time = time.time()
-        search_result = embedding_provider.get_by_multi_embedding(
-            random_queries,
-            True,
-            n_results
+        if rcsb_embedding[0] is None:
+            print(f"Ignoring {random_id}")
+            continue
+        search_result = embedding_provider.get_by_embedding(
+            collection_name,
+            rcsb_embedding[0],
+            query_length=None,
+            n_results=n_results,
+            param={
+                "metric_type": "IP",
+                "params": {}
+            }
         )
         end_time = time.time()
-
         execution_time = end_time - start_time
         print(f"Function execution time: {execution_time:.6f} seconds")
+        times.append(execution_time)
 
-    print(confidence_interval(times))
+    (b_int, t_int) = confidence_interval(times)
+    print(0.5*(b_int+t_int), 0.5*(t_int-b_int))

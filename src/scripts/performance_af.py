@@ -2,8 +2,6 @@ import argparse
 import random
 import time
 
-import numpy as np
-
 from scripts.performance_test import confidence_interval
 from utils.embedding_provider import EmbeddingProvider, MilvusCollection
 

@@ -29,6 +29,8 @@
             const includeCsm = document.getElementById('include_csm')?.checked;
             const similarityType = document.getElementById('similarity_type')?.value;
             const db = document.querySelector('input[name="db"]:checked').value;
+            const submitButton = document.getElementById("submit-button");
+            submitButton.disabled = true;
             window.location.href = `/embedding_search/${pdbId}/${compId}?search_by=${searchBy}&granularity=${searchType}&n_results=${n_res}&include_csm=${includeCsm}&similarity_type=${similarityType}&db=${db}`;
             return false;
         }

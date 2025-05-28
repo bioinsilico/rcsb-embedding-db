@@ -31,6 +31,7 @@
             const db = document.querySelector('input[name="db"]:checked').value;
             const submitButton = document.getElementById("submit-button");
             submitButton.disabled = true;
+            document.body.style.cursor = 'progress';
             window.location.href = `/embedding_search/${pdbId}/${compId}?search_by=${searchBy}&granularity=${searchType}&n_results=${n_res}&include_csm=${includeCsm}&similarity_type=${similarityType}&db=${db}`;
             return false;
         }

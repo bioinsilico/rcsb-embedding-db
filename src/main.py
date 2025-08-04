@@ -269,12 +269,10 @@ if __name__ == "__main__":
     parser.add_argument("--port", type=int, default=8000, help="Port to listen on. Defaults to 8000.")
     parser.add_argument("--reload", action="store_true", help="Enable auto-reload on code changes. For development purposes.")
 
-    parser.add_argument('--rcsb_milvus_ip', type=str, help="IPv4 Milvus DB for RCSB PDB embeddings.", required=True)
-    parser.add_argument('--afdb_milvus_ip', type=str, help="IPv4 Milvus DB for AlphaFold DB embeddings.", required=True)
+    parser.add_argument('--rcsb_milvus_ip', type=str, help="IPv4 Milvus DB for RCSB PDB embeddings", required=True)
+    parser.add_argument('--afdb_milvus_ip', type=str, help="IPv4 Milvus DB for AlphaFold DB embeddings", required=True)
     parser.add_argument('--model_path', type=str, help="Path to model", required=True)
-    parser.add_argument('--embedding_path', type=str, help="Embeddings folder.")
-    parser.add_argument('--background_distribution_ids', type=str, help="File including embedding ids for computing a background distribution.", required=True)
-
+    parser.add_argument('--embedding_path', type=str, help="Embeddings folder")
     asyncio.run(
         init(parser.parse_args())
     )

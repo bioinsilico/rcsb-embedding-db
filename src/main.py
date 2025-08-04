@@ -212,6 +212,7 @@ async def init(args):
     EMBEDDING_PROVIDER.load_model(args.model_path)
     if args.embedding_path:
         EMBEDDING_PROVIDER.set_embedding_path(args.embedding_path)
+    EMBEDDING_PROVIDER.set_background_distribution(args.background_distribution_ids)
     config = uvicorn.Config(app, host=args.host, port=args.port, reload=args.reload)
     server = uvicorn.Server(config)
     await server.serve()

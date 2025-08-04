@@ -6,7 +6,7 @@ import random
 import numpy as np
 from pymilvus import MilvusClient
 
-
+from utils.p_value import compute_p_value
 from utils.upload_structure import get_embedding_method
 
 
@@ -27,6 +27,7 @@ class EmbeddingProvider:
         self.collection = {}
         self.embedding_model = None
         self.embedding_path = None
+        self.background_distribution = []
 
     def connect(
             self,
@@ -95,7 +96,10 @@ class EmbeddingProvider:
                 reverse=True
             )
 
-        return search_result[0:n_results]
+        return [{
+            **r,
+            'p-value': compute_p_value(r['distance'], r[self.EMBEDDING_FIELD], self.background_distribution)
+        } for r in search_result[0:n_results]]
 
     def get_by_multi_embedding(
             self,
@@ -160,6 +164,11 @@ class EmbeddingProvider:
     def compute_embeddings(self, structure):
         return self.embedding_model(structure)
 
+    def set_background_distribution(self, background_distribution_file):
+        for line in open(background_distribution_file, 'r'):
+            embedding_id = line.strip()
+            embedding, _ = self.get_by_id(MilvusCollection.instance_collection, embedding_id)
+            self.background_distribution.append(np.linalg.norm(embedding))
 
 class MilvusCollection(str, Enum):
     instance_collection = "instance_embeddings"
